@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Prueba de Conexión MongoDB</title>
+        <style>
+            .container {
+                max-width: 800px;
+                margin: 50px auto;
+                padding: 20px;
+                font-family: Arial, sans-serif;
+            }
+            .card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .success {
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+                color: #155724;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .error {
+                background-color: #f8d7da;
+                border-color: #f5c6cb;
+                color: #721c24;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .info {
+                background-color: #d1ecf1;
+                border-color: #bee5eb;
+                color: #0c5460;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .button-group {
+                margin: 20px 0;
+            }
+            .button-group button {
+                margin-right: 10px;
+                padding: 10px 20px;
+                cursor: pointer;
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <div class="container">
+            <h1>Prueba de Conexión a MongoDB Local</h1>
+            
+            <div class="card">
+                <h2>Configuración</h2>
+                <div class="info">
+                    <p><strong>Host:</strong> localhost</p>
+                    <p><strong>Puerto:</strong> 27017</p>
+                    <p><strong>Base de datos:</strong> MandangoDBmvc</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Acciones</h2>
+                <div class="button-group">
+                    <h:commandButton value="Probar Conexión" 
+                                   action="#{conexionBean.probarConexion()}" 
+                                   styleClass="btn btn-primary"/>
+                    
+                    <h:commandButton value="Cerrar Conexión" 
+                                   action="#{conexionBean.cerrarConexion()}" 
+                                   styleClass="btn btn-secondary"
+                                   rendered="#{conexionBean.conectado}"/>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Resultado</h2>
+                <h:panelGroup rendered="#{conexionBean.conectado}">
+                    <div class="success">
+                        <h:outputText value="#{conexionBean.mensaje}" />
+                    </div>
+                    <p style="margin-top: 15px;">
+                        <strong>Información:</strong> 
+                        <h:outputText value="#{conexionBean.obtenerInfoBaseDatos()}" />
+                    </p>
+                </h:panelGroup>
+                
+                <h:panelGroup rendered="#{!conexionBean.conectado and conexionBean.mensaje ne ''}">
+                    <div class="error">
+                        <h:outputText value="#{conexionBean.mensaje}" />
+                    </div>
+                </h:panelGroup>
+                
+                <h:panelGroup rendered="#{conexionBean.mensaje eq ''}">
+                    <p>Presiona "Probar Conexión" para iniciar la prueba.</p>
+                </h:panelGroup>
+            </div>
+            
+            <div class="card">
+                <h2>Requisitos</h2>
+                <ul>
+                    <li>MongoDB instalado localmente</li>
+                    <li>Servicio MongoDB ejecutándose (puerto 27017)</li>
+                    <li>Base de datos "MandangoDBmvc" creada</li>
+                </ul>
+                <div class="info">
+                    <p><strong>Nota:</strong> Para verificar si MongoDB está corriendo:</p>
+                    <p>En Windows: Abre servicios.msc y busca "MongoDB"</p>
+                    <p>En terminal: Ejecuta `mongod` o `sudo systemctl start mongod` (Linux/Mac)</p>
+                </div>
+            </div>
+        </div>
+    </h:body>
+</html>
