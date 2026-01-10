@@ -3,43 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/login.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/index1.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/template.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/cambioContrasena.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/CrearUsuarioController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/crearpersonal.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/CrearPersonaController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/facades/PeperPersonFacade.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/PeperPerson.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/facades/PesexSexoFacade.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/FepagoPagoController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/XeusuUsuar.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/XeusuUsuarController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/facades/XeusuUsuarFacade.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/MeestEstud.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/MecarrCarreraController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/xerolRol/Create.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/mecarrCarrera/Create.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/mecarrCarrera/Edit.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/xerolRol/Edit.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/xerolRol/List.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/xerolRol/View.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/asignacion_roles.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/XerolRol.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/index.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/facades/XerolRolFacade.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/XeopcOpcion.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/XrXerolXeopcPK.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/XrXerolXeopc.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/modelo/MeestEstudPK.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/XrXerolXeopcController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/XeopcOpcionController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/facades/XeopcOpcionFacade.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/web/asignar_opciones.xhtml</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/XerolRolController.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/facades/XrXerolXeopcFacade.java</file>
-            <file>file:/C:/Users/Usuario/Documents/MonsterUniversity/Monster_University/src/java/ec/edu/monster/controlador/LoginController.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/CrearPersonaController.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/crearpersonal.xhtml</file>
         </group>
     </open-files>
 </project-private>
