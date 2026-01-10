@@ -5,6 +5,26 @@
         <group>
             <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/CrearPersonaController.java</file>
             <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/crearpersonal.xhtml</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/modelo/Persona.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/dao/PersonaDAO.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/dao/ConfiguracionDAO.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/dao/RolDAO.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/Conexion.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/LoginController.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/modelo/UserCache.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/login.xhtml</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/modelo/XerolRol.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/XerolRolController.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/XrXerolXeopcController.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/controlador/RolController.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/modelo/Configuracion.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/modelo/OpcionConfiguracion.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/src/java/ec/edu/monster/modelo/Rol.java</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/asignacion_roles.xhtml</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/xerolRol/Create.xhtml</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/xerolRol/Edit.xhtml</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/xerolRol/List.xhtml</file>
+            <file>file:/C:/Users/Usuario/Documents/Monster_U_Java_Mongo/MonsterU_Java_Mongo/Monster_University/web/xerolRol/View.xhtml</file>
         </group>
     </open-files>
 </project-private>

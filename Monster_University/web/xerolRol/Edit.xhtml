@@ -8,21 +8,101 @@
 
     <ui:composition>
 
-        <p:dialog id="XerolRolEditDlg" widgetVar="XerolRolEditDialog" modal="true" resizable="false" appendTo="@(body)" header="Editar Rol">
-            <h:form id="XerolRolEditForm">
+        <p:dialog id="rolEditDlg" widgetVar="rolEditDialog" modal="true" resizable="false" 
+                  appendTo="@(body)" header="Editar Rol" width="500" closable="true">
+            <h:form id="rolEditForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{xerolRolController.selected != null}">
-                        <p:outputLabel value="ID" for="xerolId" />
-                        <p:inputText id="xerolId" value="#{xerolRolController.selected.xerolId}" title="#{bundle.EditXerolRolTitle_xerolId}" required="true"  readonly="true" requiredMessage="#{bundle.EditXerolRolRequiredMessage_xerolId}"/>
-                        <p:outputLabel value="Nombre" for="xerolNombre" />
-                        <p:inputText id="xerolNombre" value="#{xerolRolController.selected.xerolNombre}" title="#{bundle.EditXerolRolTitle_xerolNombre}" />
-                        <p:outputLabel value="#Descripción" for="xerolDescri" />
-                        <p:inputText id="xerolDescri" value="#{xerolRolController.selected.xerolDescri}" title="#{bundle.EditXerolRolTitle_xerolDescri}" />
+                    <!-- Mostrar mensajes -->
+                    <p:message for="rolEditForm" />
+                    
+                    <p:panelGrid columns="2" style="width: 100%" layout="grid" 
+                                rendered="#{rolController.rolSeleccionado != null}">
+                        
+                        <!-- Código del rol (solo lectura) -->
+                        <p:outputLabel value="Código *" for="codigo" />
+                        <p:inputText id="codigo" value="#{rolController.rolSeleccionado.codigo}" 
+                                   required="true" readonly="true" 
+                                   style="background-color: #f5f5f5; font-weight: bold;">
+                        </p:inputText>
+                        
+                        <!-- Nombre del rol -->
+                        <p:outputLabel value="Nombre *" for="nombre" />
+                        <p:inputText id="nombre" value="#{rolController.rolSeleccionado.nombre}" 
+                                   required="true" requiredMessage="El nombre es obligatorio"
+                                   maxlength="100">
+                            <p:ajax event="change" update="@this" />
+                        </p:inputText>
+                        
+                        <!-- Descripción del rol -->
+                        <p:outputLabel value="Descripción" for="descripcion" />
+                        <p:inputTextarea id="descripcion" value="#{rolController.rolSeleccionado.descripcion}" 
+                                        rows="3" cols="40" maxlength="500">
+                            <p:ajax event="change" update="@this" />
+                        </p:inputTextarea>
+                        
+                        <!-- Estado del rol -->
+                        <p:outputLabel value="Estado" for="estado" />
+                        <p:selectOneMenu id="estado" value="#{rolController.rolSeleccionado.estado}" 
+                                       style="width: 150px">
+                            <f:selectItem itemLabel="ACTIVO" itemValue="ACTIVO" />
+                            <f:selectItem itemLabel="INACTIVO" itemValue="INACTIVO" />
+                        </p:selectOneMenu>
+                        
+                        <!-- Información de opciones asignadas -->
+                        <p:outputLabel value="Opciones asignadas:" />
+                        <h:panelGroup>
+                            <p:outputLabel value="#{rolController.totalOpcionesAsignadas}" 
+                                         style="font-weight: bold; color: #2196F3;" />
+                            <p:commandLink value=" [Ver/Editar]" 
+                                         onclick="PF('opcionesDialog').show();" 
+                                         style="margin-left: 10px;" />
+                        </h:panelGroup>
+                        
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{xerolRolController.update}" value="#{bundle.Save}" update="display,:XerolRolListForm:datalist,:growl" oncomplete="handleSubmit(args, 'XerolRolEditDialog');">
-                        <p:confirm header="Confirmar guardado" message="¿Deseas guardar los cambios?" icon="pi pi-question-circle"/>
-                    </p:commandButton>
-                    <p:commandButton value="#{bundle.Cancel}" onclick="XerolRolEditDialog.hide()"/>
+                    
+                    <!-- Mensaje si no hay rol seleccionado -->
+                    <p:panel rendered="#{rolController.rolSeleccionado == null}">
+                        <p:message severity="warn" />
+                    </p:panel>
+                    
+                    <p:separator />
+                    
+                    <div style="text-align: right; margin-top: 15px;">
+                        <!-- Botón de guardar con confirmación -->
+                        <p:commandButton action="#{rolController.guardarRol}" 
+                                       value="Guardar" 
+                                       update=":rolEditForm:display :messages" 
+                                       process="@this" 
+                                       icon="pi pi-save"
+                                       oncomplete="if(!args.validationFailed) {rolEditDialog.hide(); PF('rolDataTable').filter();}">
+                            <!-- Confirmación opcional -->
+                            <p:confirm header="Confirmar cambios" 
+                                     message="¿Estás seguro de guardar los cambios en este rol?"
+                                     icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                        
+                        <!-- Botón para cambiar estado -->
+                        <p:commandButton action="#{rolController.cambiarEstadoRol}" 
+                                       value="#{rolController.rolSeleccionado.estado == 'ACTIVO' ? 'Desactivar' : 'Activar'}" 
+                                       update=":rolEditForm:display :messages"
+                                       style="margin-left: 10px;"
+                                       icon="pi pi-power-off"
+                                       rendered="#{rolController.rolSeleccionado != null}"
+                                       oncomplete="PF('rolEditDialog').show();">
+                            <p:confirm header="Confirmar cambio de estado" 
+                                     message="¿Estás seguro de cambiar el estado de este rol?"
+                                     icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                        
+                        <!-- Botón cancelar -->
+                        <p:commandButton value="Cancelar" 
+                                       onclick="rolEditDialog.hide();" 
+                                       immediate="true"
+                                       icon="pi pi-times"
+                                       style="margin-left: 10px;">
+                            <p:resetInput target="rolEditForm" />
+                        </p:commandButton>
+                    </div>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

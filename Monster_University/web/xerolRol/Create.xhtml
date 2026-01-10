@@ -8,19 +8,66 @@
 
     <ui:composition>
 
-        <p:dialog id="XerolRolCreateDlg" widgetVar="XerolRolCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="Crear un nuevo rol">
-            <h:form id="XerolRolCreateForm">
+        <p:dialog id="rolCreateDlg" widgetVar="rolCreateDialog" modal="true" resizable="false" 
+                  appendTo="@(body)" header="Crear un nuevo rol" width="500">
+            <h:form id="rolCreateForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{xerolRolController.selected != null}">
-                        <p:outputLabel value="ID" for="xerolId"  />
-                        <p:inputText id="xerolId" value="#{xerolRolController.selected.xerolId}" title="#{bundle.CreateXerolRolTitle_xerolId}" required="true" readonly="true" requiredMessage="#{bundle.CreateXerolRolRequiredMessage_xerolId}"/>
-                        <p:outputLabel value="Nombre" for="xerolNombre" />
-                        <p:inputText id="xerolNombre" value="#{xerolRolController.selected.xerolNombre}" title="#{bundle.CreateXerolRolTitle_xerolNombre}" />
-                        <p:outputLabel value="Descripción" for="xerolDescri" />
-                        <p:inputText id="xerolDescri" value="#{xerolRolController.selected.xerolDescri}" title="#{bundle.CreateXerolRolTitle_xerolDescri}" />
+                    <!-- Panel para mostrar mensajes de error/exito -->
+                    <p:message for="rolCreateForm" />
+                    
+                    <p:panelGrid columns="2" style="width: 100%" layout="grid">
+                        <!-- Código del rol -->
+                        <p:outputLabel value="Código *" for="codigo" />
+                        <p:inputText id="codigo" value="#{rolController.rolSeleccionado.codigo}" 
+                                   required="true" requiredMessage="El código es obligatorio"
+                                   maxlength="10" disabled="true">
+                            <p:ajax event="change" update="@this" />
+                        </p:inputText>
+                        
+                        <!-- Nombre del rol -->
+                        <p:outputLabel value="Nombre *" for="nombre" />
+                        <p:inputText id="nombre" value="#{rolController.rolSeleccionado.nombre}" 
+                                   required="true" requiredMessage="El nombre es obligatorio"
+                                   maxlength="100">
+                            <p:ajax event="change" update="@this" />
+                        </p:inputText>
+                        
+                        <!-- Descripción del rol -->
+                        <p:outputLabel value="Descripción" for="descripcion" />
+                        <p:inputTextarea id="descripcion" value="#{rolController.rolSeleccionado.descripcion}" 
+                                        rows="3" cols="40" maxlength="500">
+                            <p:ajax event="change" update="@this" />
+                        </p:inputTextarea>
+                        
+                        <!-- Estado del rol -->
+                        <p:outputLabel value="Estado" for="estado" />
+                        <p:selectOneMenu id="estado" value="#{rolController.rolSeleccionado.estado}" 
+                                       style="width: 150px">
+                            <f:selectItem itemLabel="ACTIVO" itemValue="ACTIVO" />
+                            <f:selectItem itemLabel="INACTIVO" itemValue="INACTIVO" />
+                        </p:selectOneMenu>
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{xerolRolController.create}" value="#{bundle.Save}" update="display,:XerolRolListForm:datalist,:growl" oncomplete="handleSubmit(args,'XerolRolCreateDialog');"/>
-                    <p:commandButton value="#{bundle.Cancel}" onclick="XerolRolCreateDialog.hide()"/>
+                    
+                    <p:separator />
+                    
+                    <div style="text-align: right; margin-top: 15px;">
+                        <p:commandButton action="#{rolController.guardarRol}" 
+                                       value="Guardar" 
+                                       update=":rolCreateForm:display :messages" 
+                                       process="@this" 
+                                       icon="pi pi-save"
+                                       oncomplete="if(!args.validationFailed) {rolCreateDialog.hide(); PF('rolDataTable').filter();}">
+                            <f:param name="saveAction" value="create" />
+                        </p:commandButton>
+                        
+                        <p:commandButton value="Cancelar" 
+                                       onclick="rolCreateDialog.hide();" 
+                                       immediate="true"
+                                       icon="pi pi-times"
+                                       style="margin-left: 10px;">
+                            <p:resetInput target="rolCreateForm" />
+                        </p:commandButton>
+                    </div>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

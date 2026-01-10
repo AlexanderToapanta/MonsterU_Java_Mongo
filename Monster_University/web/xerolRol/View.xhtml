@@ -8,18 +8,113 @@
 
     <ui:composition>
 
-        <p:dialog id="XerolRolViewDlg" widgetVar="XerolRolViewDialog" modal="true" resizable="false" appendTo="@(body)" header="Vista">
-            <h:form id="XerolRolViewForm">
+        <p:dialog id="rolViewDlg" widgetVar="rolViewDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Detalles del Rol" 
+                  width="500" closable="true">
+            <h:form id="rolViewForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{xerolRolController.selected != null}">
-                        <h:outputText value="#{bundle.ViewXerolRolLabel_xerolId}"/>
-                        <h:outputText value="#{xerolRolController.selected.xerolId}" title="ID}"/>
-                        <h:outputText value="#{bundle.ViewXerolRolLabel_xerolNombre}"/>
-                        <h:outputText value="#{xerolRolController.selected.xerolNombre}" title="Nombre"/>
-                        <h:outputText value="#{bundle.ViewXerolRolLabel_xerolDescri}"/>
-                        <h:outputText value="#{xerolRolController.selected.xerolDescri}" title="Descripción"/>
-                    </p:panelGrid>
-                    <p:commandButton value="#{bundle.Close}" onclick="XerolRolViewDialog.hide()"/>
+                    
+                    <!-- Panel con detalles del rol -->
+                    <p:panel rendered="#{rolController.rolSeleccionado != null}">
+                        
+                        <!-- Información básica -->
+                        <p:panelGrid columns="2" styleClass="ui-panelgrid-blank" 
+                                    style="width: 100%; margin-bottom: 20px;">
+                            
+                            <p:outputLabel value="Código:" style="font-weight: bold; color: #666;" />
+                            <p:outputLabel value="#{rolController.rolSeleccionado.codigo}" 
+                                         style="font-weight: bold; color: #2196F3; font-size: 14px;" />
+                            
+                            <p:outputLabel value="Nombre:" style="font-weight: bold; color: #666;" />
+                            <p:outputLabel value="#{rolController.rolSeleccionado.nombre}" 
+                                         style="font-weight: bold; font-size: 16px;" />
+                            
+                            <p:outputLabel value="Estado:" style="font-weight: bold; color: #666;" />
+                            <p:tag value="#{rolController.rolSeleccionado.estado}" 
+                                   severity="#{rolController.rolSeleccionado.estado == 'ACTIVO' ? 'success' : 'danger'}" 
+                                   style="font-weight: bold;" />
+                            
+                            <p:outputLabel value="Descripción:" style="font-weight: bold; color: #666;" />
+                           
+                            <p:outputLabel value="No hay descripción" 
+                                        style="color: #999; font-style: italic;"
+                                        rendered="#{empty rolController.rolSeleccionado.descripcion}" />
+                        </p:panelGrid>
+                        
+                        <p:separator />
+                        
+                        <!-- Opciones permitidas -->
+                        <h:panelGroup layout="block" style="margin-top: 20px;">
+                            <p:outputLabel value="Opciones permitidas:" 
+                                         style="font-weight: bold; color: #666; display: block; margin-bottom: 10px;" />
+                            
+                            <p:panel rendered="#{not empty rolController.rolSeleccionado.opciones_permitidas}">
+                                <p:dataList value="#{rolController.rolSeleccionado.opciones_permitidas}" 
+                                          var="opcion" 
+                                          style="margin-left: 20px;">
+                                    <p:outputLabel value="#{rolController.getNombreOpcion(opcion)}" 
+                                                 style="color: #4CAF50;" />
+                                    <p:outputLabel value=" (#{opcion})" 
+                                                 style="color: #777; font-size: 12px;" />
+                                </p:dataList>
+                                
+                                <p:outputLabel value="Total: #{rolController.rolSeleccionado.opciones_permitidas.size()} opciones" 
+                                             style="font-style: italic; color: #777; margin-top: 10px; display: block;" />
+                            </p:panel>
+                            
+                            <p:panel rendered="#{empty rolController.rolSeleccionado.opciones_permitidas}">
+                                <p:outputLabel value="No hay opciones asignadas" 
+                                             style="color: #999; font-style: italic;" />
+                            </p:panel>
+                        </h:panelGroup>
+                        
+                        <!-- Personas con este rol (opcional) -->
+                        <h:panelGroup layout="block" style="margin-top: 20px;" 
+                                    rendered="#{rolController.personasConRol != null}">
+                            <p:outputLabel value="Personas con este rol:" 
+                                         style="font-weight: bold; color: #666; display: block; margin-bottom: 10px;" />
+                            
+                            <p:outputLabel value="#{rolController.personasConRol.size()} personas" 
+                                         style="color: #777; font-style: italic;" />
+                            
+                            <p:commandButton value="Ver personas" 
+                                           icon="pi pi-users"
+                                           style="margin-left: 10px;"
+                                           onclick="PF('rolViewDialog').hide(); PF('personasDialog').show();" />
+                        </h:panelGroup>
+                        
+                    </p:panel>
+                    
+                   
+                    
+                    <!-- Botones de acción -->
+                    <div style="text-align: right; margin-top: 25px;">
+                        
+                        <!-- Botón para editar -->
+                        <p:commandButton value="Editar" 
+                                       icon="pi pi-pencil"
+                                       action="#{rolController.prepararEdicion(rolController.rolSeleccionado)}"
+                                       update=":rolEditForm:display"
+                                       oncomplete="PF('rolViewDialog').hide(); PF('rolEditDialog').show();"
+                                       rendered="#{rolController.rolSeleccionado != null}" />
+                        
+                        <!-- Botón para gestionar opciones -->
+                        <p:commandButton value="Gestionar opciones" 
+                                       icon="pi pi-key"
+                                       action="#{rolController.cargarOpcionesParaRol}"
+                                       update=":opcionesForm:display"
+                                       oncomplete="PF('rolViewDialog').hide(); PF('opcionesDialog').show();"
+                                       style="margin-left: 10px;"
+                                       rendered="#{rolController.rolSeleccionado != null}" />
+                        
+                        <!-- Botón para cerrar -->
+                        <p:commandButton value="Cerrar" 
+                                       onclick="PF('rolViewDialog').hide();" 
+                                       icon="pi pi-times"
+                                       style="margin-left: 10px;" />
+                        
+                    </div>
+                    
                 </h:panelGroup>
             </h:form>
         </p:dialog>

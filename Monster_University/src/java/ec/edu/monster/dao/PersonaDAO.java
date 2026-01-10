@@ -189,44 +189,207 @@ public class PersonaDAO {
         return personas;
     }
     
-    // Actualizar persona
+   
+    public List<Persona> buscarPorRol(String codigoRol) {
+        List<Persona> personas = new ArrayList<>();
+        
+        try {
+            // Buscar personas donde el campo "rol.codigo" sea igual al código proporcionado
+            for (Document doc : collection.find(Filters.eq("rol.codigo", codigoRol))) {
+                Persona persona = convertirDocumentoAPersona(doc);
+                personas.add(persona);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al buscar personas por rol: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return personas;
+    }
+    
+    // Método 2: Buscar personas sin rol asignado
+    public List<Persona> buscarPersonasSinRol() {
+        List<Persona> personas = new ArrayList<>();
+        
+        try {
+            // Buscar personas donde el campo "rol" sea null o no exista
+            for (Document doc : collection.find(Filters.or(
+                Filters.eq("rol", null),
+                Filters.not(Filters.exists("rol"))
+            ))) {
+                Persona persona = convertirDocumentoAPersona(doc);
+                personas.add(persona);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al buscar personas sin rol: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return personas;
+    }
+    
+    // Método 3: Actualizar persona (incluyendo asignación/remoción de rol)
     public boolean actualizarPersona(Persona persona) {
         try {
-            Bson filtro = Filters.eq("_id", persona.getId());
+            // Buscar persona por código
+            Document personaExistente = collection.find(Filters.eq("codigo", persona.getCodigo())).first();
             
-            // Crear documento con los campos actualizados
-            Document actualizaciones = new Document();
-            actualizaciones.append("codigo", persona.getCodigo());
-            actualizaciones.append("peperTipo", persona.getPeperTipo()); // Cambiado aquí
-            actualizaciones.append("documento", persona.getDocumento());
-            actualizaciones.append("nombres", persona.getNombres());
-            actualizaciones.append("apellidos", persona.getApellidos());
-            actualizaciones.append("email", persona.getEmail());
-            actualizaciones.append("celular", persona.getCelular());
-            actualizaciones.append("fecha_nacimiento", persona.getFecha_nacimiento());
-            actualizaciones.append("sexo", persona.getSexo());
-            actualizaciones.append("estado_civil", persona.getEstado_civil());
-            actualizaciones.append("username", persona.getUsername());
-            actualizaciones.append("password_hash", persona.getPassword_hash());
-            actualizaciones.append("estado", persona.getEstado());
-            
-            // Actualizar rol si existe
-            if (persona.getRol() != null) {
-                Rol rol = persona.getRol();
-                Document docRol = new Document()
-                    .append("codigo", rol.getCodigo())
-                    .append("nombre", rol.getNombre())
-                    .append("descripcion", rol.getDescripcion())
-                    .append("estado", rol.getEstado());
-                actualizaciones.append("rol", docRol);
+            if (personaExistente == null) {
+                System.err.println("Persona no encontrada con código: " + persona.getCodigo());
+                return false;
             }
             
-            collection.updateOne(filtro, new Document("$set", actualizaciones));
-            System.out.println("Persona actualizada: " + persona.getCodigo());
+            ObjectId objectId = personaExistente.getObjectId("_id");
+            
+            Document updateDoc = new Document();
+            
+            // Actualizar campos básicos
+            if (persona.getNombres()!= null) {
+                updateDoc.append("nombre", persona.getNombres());
+            }
+            
+            if (persona.getApellidos() != null) {
+                updateDoc.append("apellido", persona.getApellidos());
+            }
+            
+            if (persona.getEmail() != null) {
+                updateDoc.append("email", persona.getEmail());
+            }
+            
+            // Actualizar rol
+            if (persona.getRol() != null) {
+                Document rolDoc = new Document("codigo", persona.getRol().getCodigo())
+                        .append("nombre", persona.getRol().getNombre());
+                updateDoc.append("rol", rolDoc);
+            } else {
+                // Si persona.getRol() es null, eliminamos el campo rol
+                updateDoc.append("rol", null);
+            }
+            
+            Document update = new Document("$set", updateDoc);
+            
+            collection.updateOne(Filters.eq("_id", objectId), update);
             return true;
         } catch (Exception e) {
             System.err.println("Error al actualizar persona: " + e.getMessage());
+            e.printStackTrace();
             return false;
+        }
+    }
+    
+    // Método 4: Convertir Document de MongoDB a objeto Persona
+    private Persona convertirDocumentoAPersona(Document doc) {
+        Persona persona = new Persona();
+        
+        
+        
+        if (doc.containsKey("codigo")) {
+            persona.setCodigo(doc.getString("codigo"));
+        }
+        
+        if (doc.containsKey("nombre")) {
+            persona.setNombres(doc.getString("nombre"));
+        }
+        
+        if (doc.containsKey("apellido")) {
+            persona.setApellidos(doc.getString("apellido"));
+        }
+        
+        if (doc.containsKey("email")) {
+            persona.setEmail(doc.getString("email"));
+        }
+        
+        // Convertir documento de rol a objeto Rol
+        if (doc.containsKey("rol") && doc.get("rol") != null) {
+            Document rolDoc = (Document) doc.get("rol");
+            if (rolDoc != null) {
+                Rol rol = new Rol();
+                
+                if (rolDoc.containsKey("codigo")) {
+                    rol.setCodigo(rolDoc.getString("codigo"));
+                }
+                
+                if (rolDoc.containsKey("nombre")) {
+                    rol.setNombre(rolDoc.getString("nombre"));
+                }
+                
+                persona.setRol(rol);
+            }
+        }
+        
+        return persona;
+    }
+    
+    // Método 5: Asignar rol a una persona
+    public boolean asignarRolAPersona(String codigoPersona, Rol rol) {
+        try {
+            Document personaExistente = collection.find(Filters.eq("codigo", codigoPersona)).first();
+            
+            if (personaExistente == null) {
+                System.err.println("Persona no encontrada con código: " + codigoPersona);
+                return false;
+            }
+            
+            ObjectId objectId = personaExistente.getObjectId("_id");
+            
+            Document rolDoc = new Document("codigo", rol.getCodigo())
+                    .append("nombre", rol.getNombre());
+            
+            Document update = new Document("$set", new Document("rol", rolDoc));
+            
+            collection.updateOne(Filters.eq("_id", objectId), update);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al asignar rol a persona: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Método 6: Quitar rol de una persona
+    public boolean quitarRolDePersona(String codigoPersona) {
+        try {
+            Document personaExistente = collection.find(Filters.eq("codigo", codigoPersona)).first();
+            
+            if (personaExistente == null) {
+                System.err.println("Persona no encontrada con código: " + codigoPersona);
+                return false;
+            }
+            
+            ObjectId objectId = personaExistente.getObjectId("_id");
+            
+            Document update = new Document("$set", new Document("rol", null));
+            
+            collection.updateOne(Filters.eq("_id", objectId), update);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al quitar rol de persona: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+     // Método 9: Contar personas con un rol específico
+    public long contarPersonasConRol(String codigoRol) {
+        try {
+            return collection.countDocuments(Filters.eq("rol.codigo", codigoRol));
+        } catch (Exception e) {
+            System.err.println("Error al contar personas con rol: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    
+    // Método 10: Contar personas sin rol
+    public long contarPersonasSinRol() {
+        try {
+            return collection.countDocuments(Filters.or(
+                Filters.eq("rol", null),
+                Filters.not(Filters.exists("rol"))
+            ));
+        } catch (Exception e) {
+            System.err.println("Error al contar personas sin rol: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
         }
     }
     
