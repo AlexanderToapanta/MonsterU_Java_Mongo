@@ -492,8 +492,7 @@ public class CrearPersonaController implements Serializable {
             nuevaPersona.setPassword_hash(passwordHash);
             System.out.println("✅ Password hash generado (SHA-256)");
             
-            // Asignar rol según el tipo de persona
-            asignarRolSegunTipoPersona();
+            
             
             // Guardar persona en MongoDB
             System.out.println("💾 Guardando persona en MongoDB...");
@@ -538,79 +537,7 @@ public class CrearPersonaController implements Serializable {
         }
     }
     
-    private void asignarRolSegunTipoPersona() {
-        try {
-            Rol rol = null;
-            String peperTipo = nuevaPersona.getPeperTipo();
-            
-            // Asignar rol según el tipo de persona seleccionado
-            if (peperTipo != null) {
-                switch (peperTipo) {
-                    case "Administrador del Sistema":
-                        rol = rolDAO.buscarPorCodigo("ADMIN");
-                        if (rol == null) {
-                            rol = crearRolSiNoExiste("ADMIN", "Administrador del Sistema", 
-                                "Administrador con todos los permisos", "ACTIVO");
-                        }
-                        break;
-                    case "Docente":
-                        rol = rolDAO.buscarPorCodigo("DOC");
-                        if (rol == null) {
-                            rol = crearRolSiNoExiste("DOC", "Docente", 
-                                "Docente con permisos académicos", "ACTIVO");
-                        }
-                        break;
-                    case "Administrador de matriculas":
-                        rol = rolDAO.buscarPorCodigo("ADM_MAT");
-                        if (rol == null) {
-                            rol = crearRolSiNoExiste("ADM_MAT", "Administrador de Matrículas", 
-                                "Administrador de procesos de matrícula", "ACTIVO");
-                        }
-                        break;
-                    case "Secretaria Academica":
-                        rol = rolDAO.buscarPorCodigo("SEC_ACAD");
-                        if (rol == null) {
-                            rol = crearRolSiNoExiste("SEC_ACAD", "Secretaría Académica", 
-                                "Personal de secretaría académica", "ACTIVO");
-                        }
-                        break;
-                    default:
-                        // Rol por defecto
-                        rol = rolDAO.buscarPorCodigo("USER");
-                        if (rol == null) {
-                            rol = crearRolSiNoExiste("USER", "Usuario Estándar", 
-                                "Usuario con permisos básicos", "ACTIVO");
-                        }
-                        break;
-                }
-            }
-            
-            if (rol == null) {
-                // Rol por defecto como último recurso
-                rol = new Rol();
-                rol.setCodigo("USER");
-                rol.setNombre("Usuario Estándar");
-                rol.setDescripcion("Usuario con permisos básicos");
-                rol.setEstado("ACTIVO");
-            }
-            
-            nuevaPersona.setRol(rol);
-            System.out.println("✅ Rol asignado según peperTipo: " + rol.getNombre());
-            
-        } catch (Exception e) {
-            System.err.println("⚠️ Error al asignar rol por tipo de persona: " + e.getMessage());
-            // Continuar sin rol si hay error
-        }
-    }
-    
-    private Rol crearRolSiNoExiste(String codigo, String nombre, String descripcion, String estado) {
-        Rol rol = new Rol();
-        rol.setCodigo(codigo);
-        rol.setNombre(nombre);
-        rol.setDescripcion(descripcion);
-        rol.setEstado(estado);
-        return rol;
-    }
+ 
     
     private String generarUsername() {
         String nombre = nuevaPersona.getNombres();

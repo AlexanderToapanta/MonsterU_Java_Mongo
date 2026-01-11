@@ -4,109 +4,106 @@
  */
 package ec.edu.monster.controlador;
 
-import ec.edu.monster.facades.XeusuUsuarFacade;
-import ec.edu.monster.facades.XrXerolXeopcFacade;
-import ec.edu.monster.modelo.XeusuUsuar;
-import ec.edu.monster.modelo.XeopcOpcion;
-import ec.edu.monster.modelo.XrXerolXeopc;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import ec.edu.monster.modelo.Persona;
 import ec.edu.monster.modelo.UserCache;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.bson.Document;
 
 @Named(value = "loginController")
 @SessionScoped
 public class LoginController implements Serializable {
     
     private final PasswordController passController;
-    private XeusuUsuar usuario;
+    private Persona usuario;
     private ExternalContext context = FacesContext.getCurrentInstance().getExternalContext(); 
     private UserCache usu = new UserCache();
     
-    @EJB
-    private XeusuUsuarFacade usuarioFacade;
-    
-    @EJB
-    private XrXerolXeopcFacade xrXerolXeopcFacade;
-    
-    // Listas para almacenar opciones del usuario
-    private List<XeopcOpcion> opcionesUsuario;
-    private List<String> idsOpcionesUsuario;
+    private Conexion conexionMongo;
+    private MongoCollection<Document> personasCollection;
 
     public LoginController() {
-        usuario = new XeusuUsuar();
+        usuario = new Persona();
         passController = new PasswordController();
-        opcionesUsuario = new ArrayList<>();
-        idsOpcionesUsuario = new ArrayList<>();
+        conexionMongo = new Conexion();
     }
 
-    // Getters y Setters
-    public XeusuUsuar getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(XeusuUsuar usuario) {
-        this.usuario = usuario;
-    }
-
-    public ExternalContext getContext() {
-        return context;
-    }
-
-    public void setContext(ExternalContext context) {
-        this.context = context;
-    }
-
-    public UserCache getUsu() {
-        return usu;
-    }
-
-    public void setUsu(UserCache usu) {
-        this.usu = usu;
-    }
-    
-    public List<XeopcOpcion> getOpcionesUsuario() {
-        return opcionesUsuario;
-    }
-    
-    public List<String> getIdsOpcionesUsuario() {
-        return idsOpcionesUsuario;
-    }
-    
     @PostConstruct
     public void init() {
-        XeusuUsuar x = getUsuarioLogueado();
-        if (x != null) {
-            // Si ya hay sesión, cargar datos en cache
-            cargarDatosUsuarioCache(x);
-            cargarOpcionesUsuario();
+        // Inicializar conexión a MongoDB
+        try {
+            conexionMongo.crearConexion();
+            if (conexionMongo.isConectado()) {
+                MongoDatabase database = conexionMongo.getDataB();
+                personasCollection = database.getCollection("personas");
+                System.out.println("Conexión a MongoDB establecida para login");
+            } else {
+                Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, "No se pudo conectar a MongoDB");
+            }
+            
+            // Verificar si ya hay un usuario logueado
+            Persona usuarioLogueado = getUsuarioLogueado();
+            if (usuarioLogueado != null) {
+                // Si ya hay sesión, cargar datos en cache
+                cargarDatosUsuarioCache(usuarioLogueado);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, "Error al inicializar MongoDB", e);
         }
     }
 
     public void doLogin() throws NoSuchAlgorithmException, IOException {
-        String clave = usuario.getXeusuContra();
-        String claveCifrada = passController.encriptarClave(clave);
+        String username = usuario.getUsername();
+        String password = usuario.getPassword_hash();
         
-        XeusuUsuar usuarioLogueado = usuarioFacade.doLogin(usuario.getXeusuNombre(), claveCifrada);
+        // Validar campos
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Usuario y contraseña requeridos"));
+            return;
+        }
         
-        if (usuarioLogueado != null) {
+        // Encriptar la contraseña ingresada
+        String claveCifrada = passController.encriptarClave(password);
+        
+        // Verificar conexión a MongoDB
+        if (!conexionMongo.isConectado()) {
+            conexionMongo.crearConexion();
+            if (conexionMongo.isConectado()) {
+                MongoDatabase database = conexionMongo.getDataB();
+                personasCollection = database.getCollection("personas");
+            } else {
+                FacesContext.getCurrentInstance().addMessage(null, 
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudo conectar a la base de datos"));
+                return;
+            }
+        }
+        
+        // Buscar usuario en MongoDB
+        Document personaDoc = personasCollection.find(
+            Filters.and(
+                Filters.eq("username", username),
+                Filters.eq("password_hash", claveCifrada)
+            )
+        ).first();
+        
+        if (personaDoc != null) {
+            Persona usuarioLogueado = documentToPersona(personaDoc);
+            
             // Verificar estado del usuario
-            if (!"ACTIVO".equals(usuarioLogueado.getXeusuEstado())) {
+            if (!"ACTIVO".equals(usuarioLogueado.getEstado())) {
                 FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Usuario inactivo"));
                 return;
@@ -118,34 +115,33 @@ public class LoginController implements Serializable {
             // Cargar datos en cache
             cargarDatosUsuarioCache(usuarioLogueado);
             
-            // Cargar opciones del usuario según su rol
-            cargarOpcionesUsuario();
+            // Mensaje de éxito
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Login exitoso"));
             
-            // Redirección según necesidad
-            if (necesitaCambiarContrasena(usuarioLogueado)) {
-                FacesContext.getCurrentInstance().getExternalContext()
-                        .redirect("/Monster_University/faces/cambioContrasena.xhtml");
-            } else {
-                FacesContext.getCurrentInstance().getExternalContext()
-                        .redirect("/Monster_University/faces/index1.xhtml");
-            }
+            // Redirigir a crearpersonal.xhtml
+            FacesContext.getCurrentInstance().getExternalContext()
+                    .redirect("/Monster_University/faces/index1.xhtml");
         } else {
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Credenciales incorrectas"));
         }
     }
     
-    private void cargarDatosUsuarioCache(XeusuUsuar usuario) {
+    private void cargarDatosUsuarioCache(Persona usuario) {
         try {
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("BienesMonster_G08PU");
-            EntityManager em = emf.createEntityManager();
+            // Cargar información básica del usuario desde MongoDB
+            usu.setUsuario(usuario.getUsername());
+            usu.setNombre(usuario.getNombres() + " " + usuario.getApellidos());
+            usu.setEmail(usuario.getEmail());
+            usu.setDocumento(usuario.getDocumento());
+            usu.setTipoPersona(usuario.getPeperTipo());
             
-            // Cargar información básica del usuario
-            usu.setUsuario(usuario.getXeusuNombre());
-            usu.setNombre(usuario.getXeusuNombre()); 
+            // Guardar cache en sesión
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("usu", usu);
             
-            em.close();
-            emf.close();
+            System.out.println("Usuario cargado en cache: " + usuario.getUsername());
+            System.out.println("Nombre completo: " + usuario.getNombres() + " " + usuario.getApellidos());
             
         } catch (Exception e) {
             System.out.println("Error cargando datos de usuario en cache: " + e.getMessage());
@@ -153,98 +149,36 @@ public class LoginController implements Serializable {
     }
     
     /**
-     * Carga las opciones del usuario según su rol
+     * Convierte un Document de MongoDB a un objeto PersonaMongo
      */
-    public void cargarOpcionesUsuario() {
-        opcionesUsuario.clear();
-        idsOpcionesUsuario.clear();
+    private Persona documentToPersona(Document doc) {
+        Persona persona = new Persona();
         
-        XeusuUsuar usuarioLogueado = getUsuarioLogueado();
-        
-        if (usuarioLogueado != null && usuarioLogueado.getXerolId() != null) {
-            try {
-                // Obtener opciones del rol del usuario
-                List<XrXerolXeopc> asignaciones = xrXerolXeopcFacade.findOpcionesPorRol(usuarioLogueado.getXerolId().getXerolId());
-                
-                // Extraer las opciones de las asignaciones
-                for (XrXerolXeopc asignacion : asignaciones) {
-                    if (asignacion.getXropFechaRetiro() == null) { // Solo opciones activas
-                        XeopcOpcion opcion = asignacion.getXeopcOpcion();
-                        if (opcion != null) {
-                            opcionesUsuario.add(opcion);
-                            idsOpcionesUsuario.add(opcion.getXeopcId());
-                        }
-                    }
-                }
-                
-                // Log para depuración
-                System.out.println("Usuario " + usuarioLogueado.getXeusuNombre() + 
-                                 " tiene " + opcionesUsuario.size() + " opciones asignadas");
-                idsOpcionesUsuario.forEach(id -> System.out.println(" - Opción: " + id));
-                
-            } catch (Exception e) {
-                Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, "Error al cargar opciones", e);
-            }
+        if (doc.getObjectId("_id") != null) {
+            persona.setId(doc.getObjectId("_id"));
         }
+        persona.setCodigo(doc.getString("codigo"));
+        persona.setPeperTipo(doc.getString("peperTipo"));
+        persona.setDocumento(doc.getString("documento"));
+        persona.setNombres(doc.getString("nombres"));
+        persona.setApellidos(doc.getString("apellidos"));
+        persona.setEmail(doc.getString("email"));
+        persona.setCelular(doc.getString("celular"));
+        persona.setFecha_nacimiento(doc.getDate("fecha_nacimiento"));
+        persona.setSexo(doc.getString("sexo"));
+        persona.setEstado_civil(doc.getString("estado_civil"));
+        persona.setUsername(doc.getString("username"));
+        persona.setPassword_hash(doc.getString("password_hash"));
+        persona.setFecha_ingreso(doc.getDate("fecha_ingreso"));
+        persona.setImagen_perfil(doc.getString("imagen_perfil"));
+        persona.setEstado(doc.getString("estado"));
+        
+        return persona;
     }
     
-    /**
-     * Verifica si el usuario tiene una opción específica
-     */
-    public boolean tieneOpcion(String opcionId) {
-        if (opcionId == null || opcionId.trim().isEmpty()) {
-            return false;
-        }
-        
-        // Si la lista está vacía, intentar cargarla
-        if (idsOpcionesUsuario.isEmpty() && isLoggedIn()) {
-            cargarOpcionesUsuario();
-        }
-        
-        return idsOpcionesUsuario.contains(opcionId);
-    }
-    
-    /**
-     * Verifica si el usuario tiene al menos una opción de un grupo
-     */
-    public boolean tieneOpcionEnGrupo(String... opcionesIds) {
-        // Si la lista está vacía, intentar cargarla
-        if (idsOpcionesUsuario.isEmpty() && isLoggedIn()) {
-            cargarOpcionesUsuario();
-        }
-        
-        for (String opcionId : opcionesIds) {
-            if (idsOpcionesUsuario.contains(opcionId)) {
-                return true;
-            }
-        }
+    private boolean necesitaCambiarContrasena(Persona usuario) {
+        // Por ahora retornamos false, puedes implementar esta lógica después
         return false;
-    }
-    
-    /**
-     * Verifica si el usuario tiene acceso a una opción principal (PER, FIN, ACA, SEG)
-     */
-    public boolean tieneAccesoMenu(String menuId) {
-        // Opciones principales que representan menús
-        switch (menuId) {
-            case "PER":
-                return tieneOpcionEnGrupo("PER", "CRE");
-            case "FIN":
-                return tieneOpcion("FIN");
-            case "ACA":
-                return tieneOpcionEnGrupo("ACA", "AC1", "AC2");
-            case "SEG":
-                return tieneOpcionEnGrupo("SEG", "SE1", "SE2");
-            default:
-                return false;
-        }
-    }
-    
-    private boolean necesitaCambiarContrasena(XeusuUsuar usuario) {
-        // Lógica para determinar si necesita cambiar contraseña
-        // Por ejemplo, si es primer acceso o contraseña expirada
-        // return usuario.getXeusuUltpass() == null;
-        return false; // Ajusta según tu lógica
     }
 
     public String doLogout() throws IOException {
@@ -252,9 +186,10 @@ public class LoginController implements Serializable {
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("usuario");
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove("usu");
         
-        // Limpiar opciones del usuario
-        opcionesUsuario.clear();
-        idsOpcionesUsuario.clear();
+        // Cerrar conexión MongoDB
+        if (conexionMongo != null && conexionMongo.isConectado()) {
+            conexionMongo.cerrarConexion();
+        }
         
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         
@@ -274,26 +209,55 @@ public class LoginController implements Serializable {
     /**
      * Obtiene el usuario logueado de la sesión
      */
-    public XeusuUsuar getUsuarioLogueado() {
-        return (XeusuUsuar) FacesContext.getCurrentInstance().getExternalContext()
+    public Persona getUsuarioLogueado() {
+        return (Persona) FacesContext.getCurrentInstance().getExternalContext()
                 .getSessionMap().get("usuario");
     }
     
     /**
-     * Forzar recarga de opciones (útil después de cambios de rol)
+     * Obtiene el nombre completo del usuario logueado
      */
-    public void recargarOpciones() {
-        cargarOpcionesUsuario();
+    public String getNombreUsuario() {
+        Persona usuario = getUsuarioLogueado();
+        if (usuario != null) {
+            return usuario.getNombres() + " " + usuario.getApellidos();
+        }
+        return "";
     }
     
     /**
-     * Obtiene el nombre del rol del usuario logueado
+     * Obtiene el tipo de persona del usuario logueado
      */
-    public String getNombreRolUsuario() {
-        XeusuUsuar usuario = getUsuarioLogueado();
-        if (usuario != null && usuario.getXerolId() != null) {
-            return usuario.getXerolId().getXerolNombre();
+    public String getTipoPersona() {
+        Persona usuario = getUsuarioLogueado();
+        if (usuario != null) {
+            return usuario.getPeperTipo();
         }
-        return "Sin rol asignado";
+        return "";
+    }
+    
+    // Getters y Setters
+    public Persona getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Persona usuario) {
+        this.usuario = usuario;
+    }
+
+    public ExternalContext getContext() {
+        return context;
+    }
+
+    public void setContext(ExternalContext context) {
+        this.context = context;
+    }
+
+    public UserCache getUsu() {
+        return usu;
+    }
+
+    public void setUsu(UserCache usu) {
+        this.usu = usu;
     }
 }

@@ -13,8 +13,35 @@ public class UserCache implements Serializable {
     private String foto;
     private String direccion;
     private String telefono;
+    private String Email;
+    private String Documento;
+    private String TipoPersona;
 
     public UserCache() {
+    }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String Email) {
+        this.Email = Email;
+    }
+
+    public String getDocumento() {
+        return Documento;
+    }
+
+    public void setDocumento(String Documento) {
+        this.Documento = Documento;
+    }
+
+    public String getTipoPersona() {
+        return TipoPersona;
+    }
+
+    public void setTipoPersona(String TipoPersona) {
+        this.TipoPersona = TipoPersona;
     }
 
    
