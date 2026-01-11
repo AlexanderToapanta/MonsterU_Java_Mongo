@@ -8,18 +8,24 @@
 
     <ui:composition>
 
-        <p:dialog id="XerolRolViewDlg" widgetVar="XerolRolViewDialog" modal="true" resizable="false" appendTo="@(body)" header="Vista">
-            <h:form id="XerolRolViewForm">
-                <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{xerolRolController.selected != null}">
-                        <h:outputText value="#{bundle.ViewXerolRolLabel_xerolId}"/>
-                        <h:outputText value="#{xerolRolController.selected.xerolId}" title="ID}"/>
-                        <h:outputText value="#{bundle.ViewXerolRolLabel_xerolNombre}"/>
-                        <h:outputText value="#{xerolRolController.selected.xerolNombre}" title="Nombre"/>
-                        <h:outputText value="#{bundle.ViewXerolRolLabel_xerolDescri}"/>
-                        <h:outputText value="#{xerolRolController.selected.xerolDescri}" title="Descripción"/>
+        <p:dialog id="rolViewDlg" widgetVar="rolViewDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Ver rol">
+            <h:form id="rolViewForm">
+                <h:panelGroup id="displayView">
+                    <p:panelGrid columns="2" rendered="#{rolController.selected != null}">
+                        <p:outputLabel value="Código:" for="codigoView" />
+                        <p:outputLabel id="codigoView" value="#{rolController.selected.codigo}" />
+                        
+                        <p:outputLabel value="Nombre:" for="nombreView" />
+                        <p:outputLabel id="nombreView" value="#{rolController.selected.nombre}" />
+                        
+                        <p:outputLabel value="Descripción:" for="descripcionView" />
+                        <p:outputLabel id="descripcionView" value="#{rolController.selected.descripcion}" />
+                        
+                        <p:outputLabel value="Estado:" for="estadoView" />
+                        <p:outputLabel id="estadoView" value="#{rolController.selected.estado}" />
                     </p:panelGrid>
-                    <p:commandButton value="#{bundle.Close}" onclick="XerolRolViewDialog.hide()"/>
+                    <p:commandButton value="Cerrar" onclick="PF('rolViewDialog').hide()"/>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

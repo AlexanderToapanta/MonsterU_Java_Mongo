@@ -334,4 +334,32 @@ public class PersonaDAO {
     public boolean existePeperTipo(String peperTipo) {
         return !buscarPorPeperTipo(peperTipo).isEmpty();
     }
+    public List<Persona> buscarPersonasSinRol() {
+        List<Persona> personas = new ArrayList<>();
+        try {
+            // Buscar personas donde el campo rol sea null o no exista
+            for (Document doc : collection.find(Filters.or(
+                Filters.eq("rol", null),
+                Filters.exists("rol", false)
+            ))) {
+                personas.add(convertirDocumentAPersona(doc));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return personas;
+    }
+    
+    public List<Persona> buscarPersonasPorRol(String codigoRol) {
+        List<Persona> personas = new ArrayList<>();
+        try {
+            // Buscar personas cuyo rol tenga el código especificado
+            for (Document doc : collection.find(Filters.eq("rol.codigo", codigoRol))) {
+                personas.add(convertirDocumentAPersona(doc));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return personas;
+    }
 }

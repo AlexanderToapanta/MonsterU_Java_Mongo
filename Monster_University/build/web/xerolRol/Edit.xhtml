@@ -8,21 +8,32 @@
 
     <ui:composition>
 
-        <p:dialog id="XerolRolEditDlg" widgetVar="XerolRolEditDialog" modal="true" resizable="false" appendTo="@(body)" header="Editar Rol">
-            <h:form id="XerolRolEditForm">
-                <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{xerolRolController.selected != null}">
-                        <p:outputLabel value="ID" for="xerolId" />
-                        <p:inputText id="xerolId" value="#{xerolRolController.selected.xerolId}" title="#{bundle.EditXerolRolTitle_xerolId}" required="true"  readonly="true" requiredMessage="#{bundle.EditXerolRolRequiredMessage_xerolId}"/>
-                        <p:outputLabel value="Nombre" for="xerolNombre" />
-                        <p:inputText id="xerolNombre" value="#{xerolRolController.selected.xerolNombre}" title="#{bundle.EditXerolRolTitle_xerolNombre}" />
-                        <p:outputLabel value="#Descripción" for="xerolDescri" />
-                        <p:inputText id="xerolDescri" value="#{xerolRolController.selected.xerolDescri}" title="#{bundle.EditXerolRolTitle_xerolDescri}" />
+        <p:dialog id="rolEditDlg" widgetVar="rolEditDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Editar rol">
+            <h:form id="rolEditForm">
+                <h:panelGroup id="displayEdit">
+                    <p:panelGrid columns="2" rendered="#{rolController.selected != null}">
+                        <p:outputLabel value="Código:" for="codigoEdit" />
+                        <p:outputLabel id="codigoEdit" value="#{rolController.selected.codigo}" />
+                        
+                        <p:outputLabel value="Nombre:" for="nombreEdit" />
+                        <p:inputText id="nombreEdit" value="#{rolController.selected.nombre}" 
+                                   required="true" />
+                        
+                        <p:outputLabel value="Descripción:" for="descripcionEdit" />
+                        <p:inputText id="descripcionEdit" value="#{rolController.selected.descripcion}" />
+                        
+                        <p:outputLabel value="Estado:" for="estadoEdit" />
+                        <p:selectOneMenu id="estadoEdit" value="#{rolController.selected.estado}">
+                            <f:selectItem itemLabel="ACTIVO" itemValue="ACTIVO" />
+                            <f:selectItem itemLabel="INACTIVO" itemValue="INACTIVO" />
+                        </p:selectOneMenu>
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{xerolRolController.update}" value="#{bundle.Save}" update="display,:XerolRolListForm:datalist,:growl" oncomplete="handleSubmit(args, 'XerolRolEditDialog');">
-                        <p:confirm header="Confirmar guardado" message="¿Deseas guardar los cambios?" icon="pi pi-question-circle"/>
-                    </p:commandButton>
-                    <p:commandButton value="#{bundle.Cancel}" onclick="XerolRolEditDialog.hide()"/>
+                    <p:commandButton actionListener="#{rolController.update}" value="Actualizar" 
+                                   update="displayEdit,:rolListForm:datalist,:growl" 
+                                   oncomplete="if(!args.validationFailed) PF('rolEditDialog').hide();"/>
+                    <p:commandButton value="Cancelar" 
+                                   onclick="PF('rolEditDialog').hide()" immediate="true"/>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

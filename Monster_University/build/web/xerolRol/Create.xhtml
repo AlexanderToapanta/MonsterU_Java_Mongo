@@ -8,19 +8,33 @@
 
     <ui:composition>
 
-        <p:dialog id="XerolRolCreateDlg" widgetVar="XerolRolCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="Crear un nuevo rol">
-            <h:form id="XerolRolCreateForm">
+        <p:dialog id="rolCreateDlg" widgetVar="rolCreateDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Crear un nuevo rol">
+            <h:form id="rolCreateForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{xerolRolController.selected != null}">
-                        <p:outputLabel value="ID" for="xerolId"  />
-                        <p:inputText id="xerolId" value="#{xerolRolController.selected.xerolId}" title="#{bundle.CreateXerolRolTitle_xerolId}" required="true" readonly="true" requiredMessage="#{bundle.CreateXerolRolRequiredMessage_xerolId}"/>
-                        <p:outputLabel value="Nombre" for="xerolNombre" />
-                        <p:inputText id="xerolNombre" value="#{xerolRolController.selected.xerolNombre}" title="#{bundle.CreateXerolRolTitle_xerolNombre}" />
-                        <p:outputLabel value="Descripción" for="xerolDescri" />
-                        <p:inputText id="xerolDescri" value="#{xerolRolController.selected.xerolDescri}" title="#{bundle.CreateXerolRolTitle_xerolDescri}" />
+                    <p:panelGrid columns="2" rendered="#{rolController.selected != null}">
+                        <p:outputLabel value="Código:" for="codigo" />
+                        <p:inputText id="codigo" value="#{rolController.selected.codigo}" 
+                                   required="true" readonly="true" />
+                        
+                        <p:outputLabel value="Nombre:" for="nombre" />
+                        <p:inputText id="nombre" value="#{rolController.selected.nombre}" 
+                                   required="true" />
+                        
+                        <p:outputLabel value="Descripción:" for="descripcion" />
+                        <p:inputText id="descripcion" value="#{rolController.selected.descripcion}" />
+                        
+                        <p:outputLabel value="Estado:" for="estado" />
+                        <p:selectOneMenu id="estado" value="#{rolController.selected.estado}">
+                            <f:selectItem itemLabel="ACTIVO" itemValue="ACTIVO" />
+                            <f:selectItem itemLabel="INACTIVO" itemValue="INACTIVO" />
+                        </p:selectOneMenu>
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{xerolRolController.create}" value="#{bundle.Save}" update="display,:XerolRolListForm:datalist,:growl" oncomplete="handleSubmit(args,'XerolRolCreateDialog');"/>
-                    <p:commandButton value="#{bundle.Cancel}" onclick="XerolRolCreateDialog.hide()"/>
+                    <p:commandButton actionListener="#{rolController.create}" value="Guardar" 
+                                   update="display,:rolListForm:datalist,:growl" 
+                                   oncomplete="if(!args.validationFailed) PF('rolCreateDialog').hide();"/>
+                    <p:commandButton value="Cancelar" 
+                                   onclick="PF('rolCreateDialog').hide()" immediate="true"/>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

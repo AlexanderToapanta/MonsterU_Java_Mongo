@@ -1,0 +1,500 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Administrar Roles</title>
+    <style>
+        /* Estilos personalizados */
+        .role-table .ui-datatable-tablewrapper {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .role-table .ui-datatable thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            padding: 12px 10px;
+        }
+        
+        .role-table .ui-state-highlight {
+            background-color: #e3f2fd !important;
+            color: #1976d2 !important;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .empty-message {
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .dialog-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .field-hint {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+        
+        .required-marker {
+            color: #dc3545;
+        }
+        
+        .form-field {
+            margin-bottom: 15px;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <!-- Contenedor principal -->
+    <div style="padding: 20px;">
+        <!-- Mensajes -->
+        <p:growl id="growl" showDetail="true" sticky="true" life="3000"/>
+        
+        <!-- Panel principal -->
+        <p:panel header="Administrar Roles" style="margin-bottom: 20px;">
+            <f:facet name="header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="pi pi-users" style="font-size: 1.2rem;"></i>
+                    <span>Administrar Roles</span>
+                </div>
+            </f:facet>
+            
+            <!-- Formulario principal -->
+            <h:form id="formRoles">
+                <!-- Tabla de roles -->
+                <p:dataTable 
+                    id="rolesTable"
+                    value="#{rolController.items}"
+                    var="rol"
+                    selection="#{rolController.selected}"
+                    selectionMode="single"
+                    rowKey="#{rol.codigo}"
+                    styleClass="role-table"
+                    paginator="true"
+                    rows="10"
+                    rowsPerPageTemplate="5,10,15,20"
+                    paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                    currentPageReportTemplate="Mostrando {startRecord} - {endRecord} de {totalRecords}"
+                    emptyMessage="No hay roles registrados"
+                    lazy="false"
+                    widgetVar="rolesTableWV">
+                    
+                    <p:column headerText="ID" sortBy="#{rol.codigo}" width="120">
+                        <h:outputText value="#{rol.codigo}"/>
+                    </p:column>
+                    
+                    <p:column headerText="Nombre" sortBy="#{rol.nombre}">
+                        <h:outputText value="#{rol.nombre}"/>
+                    </p:column>
+                    
+                    <p:column headerText="Descripción" sortBy="#{rol.descripcion}">
+                        <h:outputText value="#{rol.descripcion}" rendered="#{not empty rol.descripcion}"/>
+                        <span style="color: #6c757d;" rendered="#{empty rol.descripcion}">Sin descripción</span>
+                    </p:column>
+                    
+                    <p:column headerText="Estado" width="100">
+                        <p:tag 
+                            value="#{rol.estado}" 
+                            severity="#{rol.estado eq 'ACTIVO' ? 'success' : 'danger'}"
+                            style="font-size: 0.875rem;"/>
+                    </p:column>
+                    
+                    <p:column headerText="Usuarios" width="120">
+                        <p:badge 
+                            value="#{rolController.getTotalPersonasConRol()}" 
+                            severity="info"
+                            rendered="#{not empty rolController.selected and rolController.selected.codigo eq rol.codigo}"/>
+                        <p:badge 
+                            value="0" 
+                            severity="info"
+                            rendered="#{empty rolController.selected or rolController.selected.codigo ne rol.codigo}"/>
+                    </p:column>
+                    
+                    <f:facet name="empty">
+                        <div class="empty-message">
+                            <i class="pi pi-inbox" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <p>No hay roles registrados en el sistema</p>
+                        </div>
+                    </f:facet>
+                </p:dataTable>
+                
+                <!-- Botones de acción -->
+                <div class="action-buttons">
+                    <!-- Botón Nuevo -->
+                    <p:commandButton 
+                        value="Nuevo Rol"
+                        icon="pi pi-plus"
+                        actionListener="#{rolController.prepareCreate}"
+                        oncomplete="PF('createDialog').show()"
+                        update=":createForm"/>
+                    
+                    <!-- Botón Ver -->
+                    <p:commandButton 
+                        value="Ver Detalles"
+                        icon="pi pi-eye"
+                        disabled="#{empty rolController.selected}"
+                        oncomplete="PF('viewDialog').show()"
+                        update=":viewForm"/>
+                    
+                    <!-- Botón Editar -->
+                    <p:commandButton 
+                        value="Editar"
+                        icon="pi pi-pencil"
+                        disabled="#{empty rolController.selected}"
+                        oncomplete="PF('editDialog').show()"
+                        update=":editForm"/>
+                    
+                    <!-- Botón Eliminar -->
+                    <p:commandButton 
+                        value="Eliminar"
+                        icon="pi pi-trash"
+                        styleClass="p-button-danger"
+                        disabled="#{empty rolController.selected}"
+                        action="#{rolController.destroy}"
+                        update=":formRoles :growl"
+                        onclick="return confirm('¿Está seguro que desea eliminar el rol #{rolController.selected.nombre}?')"/>
+                    
+                    <!-- Botón Asignar Usuarios -->
+                    <p:commandButton 
+                        value="Asignar Usuarios"
+                        icon="pi pi-user-plus"
+                        styleClass="p-button-help"
+                        disabled="#{empty rolController.selected}"
+                        actionListener="#{rolController.cargarPersonasPorRol}"
+                        oncomplete="PF('assignDialog').show()"
+                        update=":assignForm"/>
+                    
+                    <!-- Botón Actualizar -->
+                    <p:commandButton 
+                        value="Actualizar"
+                        icon="pi pi-refresh"
+                        styleClass="p-button-secondary"
+                        action="#{rolController.cargarRoles}"
+                        update=":formRoles :growl"/>
+                </div>
+            </h:form>
+        </p:panel>
+    </div>
+    
+    <!-- ========== DIÁLOGO CREAR ROL ========== -->
+    <p:dialog 
+        widgetVar="createDialog"
+        header="Crear Nuevo Rol"
+        modal="true"
+        draggable="false"
+        resizable="false"
+        width="500">
+        
+        <h:form id="createForm">
+            <!-- Campo ID -->
+            <div class="form-field">
+                <span class="field-label">ID</span>
+                <p:inputText 
+                    id="createId"
+                    value="#{rolController.selected.codigo}"
+                    required="true"
+                    readonly="true"
+                    style="width: 100%"/>
+                <p:message for="createId" display="icon"/>
+                <span class="field-hint">Formato: RO001, RO002, etc. (Generado automáticamente)</span>
+            </div>
+            
+            <!-- Campo Nombre -->
+            <div class="form-field">
+                <span class="field-label">Nombre del Rol <span class="required-marker">*</span></span>
+                <p:inputText 
+                    id="createNombre"
+                    value="#{rolController.selected.nombre}"
+                    required="true"
+                    maxlength="30"
+                    style="width: 100%"/>
+                <p:message for="createNombre" display="icon"/>
+                <span class="field-hint">Máximo 30 caracteres</span>
+            </div>
+            
+            <!-- Campo Descripción -->
+            <div class="form-field">
+                <span class="field-label">Descripción</span>
+                <p:inputTextarea 
+                    id="createDescripcion"
+                    value="#{rolController.selected.descripcion}"
+                    rows="3"
+                    maxlength="100"
+                    style="width: 100%"/>
+                <span class="field-hint">Máximo 100 caracteres</span>
+            </div>
+            
+            <!-- Botones del diálogo -->
+            <div class="dialog-footer">
+                <p:commandButton 
+                    value="Cancelar"
+                    styleClass="p-button-secondary"
+                    onclick="PF('createDialog').hide()"
+                    immediate="true"/>
+                
+                <p:commandButton 
+                    value="Regenerar ID"
+                    icon="pi pi-sync"
+                    styleClass="p-button-outlined"
+                    actionListener="#{rolController.prepareCreate}"
+                    update=":createForm"/>
+                
+                <p:commandButton 
+                    value="Guardar"
+                    icon="pi pi-save"
+                    styleClass="p-button-success"
+                    action="#{rolController.create}"
+                    update=":formRoles :growl"
+                    oncomplete="if(!args.validationFailed) PF('createDialog').hide()"/>
+            </div>
+        </h:form>
+    </p:dialog>
+    
+    <!-- ========== DIÁLOGO VER DETALLES ========== -->
+    <p:dialog 
+        widgetVar="viewDialog"
+        header="Detalles del Rol"
+        modal="true"
+        draggable="false"
+        resizable="false"
+        width="500">
+        
+        <h:form id="viewForm">
+            <p:panelGrid columns="2" style="width: 100%; border: none;">
+                <!-- ID -->
+                <h:outputText value="ID:" style="font-weight: bold;"/>
+                <h:outputText value="#{rolController.selected.codigo}"/>
+                
+                <!-- Nombre -->
+                <h:outputText value="Nombre:" style="font-weight: bold;"/>
+                <h:outputText value="#{rolController.selected.nombre}"/>
+                
+                <!-- Descripción -->
+                <h:outputText value="Descripción:" style="font-weight: bold;"/>
+                <h:outputText 
+                    value="#{rolController.selected.descripcion}" 
+                    rendered="#{not empty rolController.selected.descripcion}"/>
+                <h:outputText 
+                    value="Sin descripción" 
+                    style="color: #6c757d;"
+                    rendered="#{empty rolController.selected.descripcion}"/>
+                
+                <!-- Estado -->
+                <h:outputText value="Estado:" style="font-weight: bold;"/>
+                <p:tag 
+                    value="#{rolController.selected.estado}" 
+                    severity="#{rolController.selected.estado eq 'ACTIVO' ? 'success' : 'danger'}"/>
+                
+                <!-- Usuarios Asignados -->
+                <h:outputText value="Usuarios Asignados:" style="font-weight: bold;"/>
+                <p:badge value="#{rolController.getTotalPersonasConRol()}" severity="info"/>
+            </p:panelGrid>
+            
+            <!-- Botones del diálogo -->
+            <div class="dialog-footer">
+                <p:commandButton 
+                    value="Cerrar"
+                    styleClass="p-button-secondary"
+                    onclick="PF('viewDialog').hide()"/>
+            </div>
+        </h:form>
+    </p:dialog>
+    
+    <!-- ========== DIÁLOGO EDITAR ROL ========== -->
+    <p:dialog 
+        widgetVar="editDialog"
+        header="Editar Rol"
+        modal="true"
+        draggable="false"
+        resizable="false"
+        width="500">
+        
+        <h:form id="editForm">
+            <!-- Campo ID (solo lectura) -->
+            <div class="form-field">
+                <span class="field-label">ID</span>
+                <p:inputText 
+                    id="editId"
+                    value="#{rolController.selected.codigo}"
+                    readonly="true"
+                    style="width: 100%"/>
+            </div>
+            
+            <!-- Campo Nombre -->
+            <div class="form-field">
+                <span class="field-label">Nombre del Rol <span class="required-marker">*</span></span>
+                <p:inputText 
+                    id="editNombre"
+                    value="#{rolController.selected.nombre}"
+                    required="true"
+                    maxlength="30"
+                    style="width: 100%"/>
+                <p:message for="editNombre" display="icon"/>
+                <span class="field-hint">Máximo 30 caracteres</span>
+            </div>
+            
+            <!-- Campo Descripción -->
+            <div class="form-field">
+                <span class="field-label">Descripción</span>
+                <p:inputTextarea 
+                    id="editDescripcion"
+                    value="#{rolController.selected.descripcion}"
+                    rows="3"
+                    maxlength="100"
+                    style="width: 100%"/>
+                <span class="field-hint">Máximo 100 caracteres</span>
+            </div>
+            
+            <!-- Botones del diálogo -->
+            <div class="dialog-footer">
+                <p:commandButton 
+                    value="Cancelar"
+                    styleClass="p-button-secondary"
+                    onclick="PF('editDialog').hide()"
+                    immediate="true"/>
+                
+                <p:commandButton 
+                    value="Guardar Cambios"
+                    icon="pi pi-save"
+                    styleClass="p-button-primary"
+                    action="#{rolController.update}"
+                    update=":formRoles :growl"
+                    oncomplete="if(!args.validationFailed) PF('editDialog').hide()"/>
+            </div>
+        </h:form>
+    </p:dialog>
+    
+    <!-- ========== DIÁLOGO ASIGNAR USUARIOS ========== -->
+    <p:dialog 
+        widgetVar="assignDialog"
+        header="Asignar Usuarios al Rol"
+        modal="true"
+        draggable="false"
+        resizable="false"
+        width="700"
+        height="500">
+        
+        <h:form id="assignForm">
+            <div style="margin-bottom: 15px;">
+                <h:outputText 
+                    value="Rol: #{rolController.selected.nombre} (#{rolController.selected.codigo})" 
+                    style="font-weight: bold; font-size: 1.1rem;"/>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Columna Izquierda: Usuarios sin rol -->
+                <div>
+                    <h4 style="margin-bottom: 10px;">
+                        Usuarios sin Rol 
+                        <p:badge value="#{rolController.getTotalPersonasSinRol()}" severity="info"/>
+                    </h4>
+                    
+                    <p:dataTable 
+                        id="sinRolTable"
+                        value="#{rolController.personasSinRol}"
+                        var="persona"
+                        selection="#{rolController.personasSeleccionadasSinRol}"
+                        selectionMode="multiple"
+                        scrollable="true"
+                        scrollHeight="250"
+                        style="width: 100%;">
+                        
+                        <p:column selectionMode="multiple" style="width: 30px;"/>
+                        
+                        <p:column headerText="Cédula">
+                            <h:outputText value="#{persona.cedula}"/>
+                        </p:column>
+                        
+                        <p:column headerText="Nombre">
+                            <h:outputText value="#{persona.nombreCompleto}"/>
+                        </p:column>
+                    </p:dataTable>
+                    
+                    <p:commandButton 
+                        value="Asignar →"
+                        icon="pi pi-arrow-right"
+                        styleClass="p-button-success"
+                        style="width: 100%; margin-top: 10px;"
+                        action="#{rolController.asignarPersonasSeleccionadas}"
+                        update=":assignForm :growl"
+                        disabled="#{empty rolController.personasSeleccionadasSinRol}"/>
+                </div>
+                
+                <!-- Columna Derecha: Usuarios con este rol -->
+                <div>
+                    <h4 style="margin-bottom: 10px;">
+                        Usuarios con este Rol 
+                        <p:badge value="#{rolController.getTotalPersonasConRol()}" severity="info"/>
+                    </h4>
+                    
+                    <p:dataTable 
+                        id="conRolTable"
+                        value="#{rolController.personasConRol}"
+                        var="persona"
+                        selection="#{rolController.personasSeleccionadasConRol}"
+                        selectionMode="multiple"
+                        scrollable="true"
+                        scrollHeight="250"
+                        style="width: 100%;">
+                        
+                        <p:column selectionMode="multiple" style="width: 30px;"/>
+                        
+                        <p:column headerText="Cédula">
+                            <h:outputText value="#{persona.cedula}"/>
+                        </p:column>
+                        
+                        <p:column headerText="Nombre">
+                            <h:outputText value="#{persona.nombreCompleto}"/>
+                        </p:column>
+                    </p:dataTable>
+                    
+                    <p:commandButton 
+                        value="← Quitar"
+                        icon="pi pi-arrow-left"
+                        styleClass="p-button-danger"
+                        style="width: 100%; margin-top: 10px;"
+                        action="#{rolController.quitarPersonasSeleccionadas}"
+                        update=":assignForm :growl"
+                        disabled="#{empty rolController.personasSeleccionadasConRol}"/>
+                </div>
+            </div>
+            
+            <!-- Botones del diálogo -->
+            <div class="dialog-footer">
+                <p:commandButton 
+                    value="Cerrar"
+                    styleClass="p-button-secondary"
+                    onclick="PF('assignDialog').hide()"/>
+            </div>
+        </h:form>
+    </p:dialog>
+</h:body>
+</html>
