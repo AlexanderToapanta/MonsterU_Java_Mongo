@@ -18,72 +18,41 @@
                 <div class="login-header">
                     <h1>MONSTER UNIVERSITY</h1>
                     <h2>Iniciar Sesión</h2>
-                    <p class="system-info">Sistema MongoDB - Base de datos: monster_university_neatbeans</p>
                 </div>
                 
                 <h:form id="loginForm">
-                    <p:messages id="messages" showDetail="true" closable="true" globalOnly="true" />
+                    <p:messages id="messages" showDetail="true" closable="true"/>
                     
                     <div class="form-group">
-                        <p:outputLabel for="username" value="Usuario:" />
+                        <p:outputLabel for="username" value="Usuario:"/>
                         <p:inputText id="username" 
-                                   value="#{loginController.username}"
+                                   value="#{loginController.usuario.xeusuNombre}"
                                    placeholder="Ingrese su usuario"
                                    required="true"
                                    requiredMessage="El usuario es requerido"
-                                   style="width: 100%"
-                                   autocomplete="username">
-                            <p:ajax event="blur" 
-                                  update="usernameError" />
-                        </p:inputText>
-                        <p:message for="username" id="usernameError" display="text" />
+                                   style="width: 100%"/>
                     </div>
                     
                     <div class="form-group">
-                        <p:outputLabel for="password" value="Contraseña:" />
+                        <p:outputLabel for="password" value="Contraseña:"/>
                         <p:password id="password" 
-                                  value="#{loginController.password}"
+                                  value="#{loginController.usuario.xeusuContra}"
                                   placeholder="Ingrese su contraseña"
                                   required="true"
                                   requiredMessage="La contraseña es requerida"
                                   feedback="false"
-                                  style="width: 100%"
-                                  autocomplete="current-password">
-                            <p:ajax event="blur" 
-                                  update="passwordError" />
-                        </p:password>
-                        <p:message for="password" id="passwordError" display="text" />
+                                  style="width: 100%"/>
                     </div>
-                    
-                   
                     
                     <p:commandButton value="Ingresar" 
                                    action="#{loginController.doLogin}"
                                    styleClass="login-button"
                                    update="messages"
-                                   process="@form"
-                                   ajax="false"
-                                   onstart="if(!confirm('¿Está seguro de iniciar sesión?')) return false;"/>
-                    
-                    <!-- Enlace para recuperar contraseña -->
-                    <div class="forgot-password">
-                        <h:outputLink value="#{request.contextPath}/faces/recuperarPassword.xhtml" 
-                                    style="font-size: 0.9rem; color: var(--primary-indigo); text-decoration: none;">
-                            ¿Olvidó su contraseña?
-                        </h:outputLink>
-                    </div>
+                                   ajax="false"/>
                 </h:form>
                 
-                <!-- Información del sistema -->
-                <div class="system-info-panel">
-                    <p><i class="pi pi-database" style="margin-right: 5px;"></i> Base de datos: MongoDB</p>
-                    <p><i class="pi pi-server" style="margin-right: 5px;"></i> Colección: personas</p>
-                    <p><i class="pi pi-shield" style="margin-right: 5px;"></i> Autenticación: SHA-256</p>
-                </div>
-                
                 <div class="login-footer">
-                    <p>Sistema de Gestión Académica - Versión 2.0 (MongoDB)</p>
-                    <p class="copyright">© #{java.time.LocalDate.now().year} Monster University</p>
+                    <p>Sistema de Gestión Académica</p>
                 </div>
             </div>
         </div>
@@ -96,14 +65,6 @@
                 --accent-amber: #f59e0b;       /* Ámbar para acentos */
                 --light-bg: rgba(255, 255, 255, 0.95);
                 --dark-overlay: rgba(79, 70, 229, 0.7); /* Índigo semi-transparente */
-                --error-red: #dc2626;
-                --success-green: #059669;
-            }
-            
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
             
             .login-container {
@@ -128,9 +89,9 @@
                 height: 100%;
                 background: linear-gradient(
                     135deg, 
-                    rgba(109, 40, 217, 0.85) 0%,    /* Púrpura */
-                    rgba(79, 70, 229, 0.75) 50%,     /* Índigo */
-                    rgba(245, 158, 11, 0.25) 100%    /* Ámbar sutil */
+                    rgba(109, 40, 217, 0.8) 0%,    /* Púrpura */
+                    rgba(79, 70, 229, 0.7) 50%,     /* Índigo */
+                    rgba(245, 158, 11, 0.2) 100%    /* Ámbar sutil */
                 );
                 z-index: 0;
             }
@@ -138,26 +99,14 @@
             .login-card {
                 background: var(--light-bg);
                 padding: 40px 35px;
-                border-radius: 20px;
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+                border-radius: 15px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
                 width: 100%;
-                max-width: 450px;
+                max-width: 420px;
                 position: relative;
                 z-index: 1;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                backdrop-filter: blur(15px);
-                animation: fadeIn 0.6s ease-out;
-            }
-            
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
             }
             
             .login-header {
@@ -168,154 +117,76 @@
             .login-header h1 {
                 color: var(--primary-purple);
                 margin: 0 0 10px 0;
-                font-size: 2.4rem;
-                font-weight: 900;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-                letter-spacing: 1.5px;
-                background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-indigo) 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                font-size: 2.2rem;
+                font-weight: 800;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+                letter-spacing: 1px;
             }
             
             .login-header h2 {
                 color: var(--primary-indigo);
-                margin: 0 0 15px 0;
-                font-size: 1.6rem;
-                font-weight: 700;
-                opacity: 0.95;
-            }
-            
-            .login-header .system-info {
-                color: #64748b;
-                font-size: 0.85rem;
-                margin-top: 5px;
-                background-color: #f1f5f9;
-                padding: 5px 10px;
-                border-radius: 5px;
-                display: inline-block;
+                margin: 0;
+                font-size: 1.5rem;
+                font-weight: 600;
+                opacity: 0.9;
             }
             
             .form-group {
                 margin-bottom: 25px;
-                position: relative;
             }
             
             .form-group label {
                 display: block;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
                 color: var(--primary-purple);
-                font-weight: 700;
-                font-size: 1rem;
-                display: flex;
-                align-items: center;
-            }
-            
-            .form-group label:before {
-                content: "•";
-                margin-right: 8px;
-                color: var(--accent-amber);
-                font-size: 1.2rem;
+                font-weight: 600;
+                font-size: 0.95rem;
             }
             
             .ui-inputtext, .ui-password {
                 width: 100% !important;
-                padding: 14px 16px !important;
-                border: 2px solid #cbd5e1 !important;
-                border-radius: 10px !important;
-                font-size: 1.05rem !important;
+                padding: 12px 15px !important;
+                border: 2px solid #e2e8f0 !important;
+                border-radius: 8px !important;
+                font-size: 1rem !important;
                 transition: all 0.3s ease !important;
                 background: white !important;
-                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
             }
             
             .ui-inputtext:focus, .ui-password:focus {
                 outline: none !important;
                 border-color: var(--primary-indigo) !important;
-                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.25) !important;
-                transform: translateY(-1px);
-            }
-            
-            .ui-inputtext:hover, .ui-password:hover {
-                border-color: #94a3b8 !important;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2) !important;
             }
             
             .ui-inputtext::placeholder, .ui-password::placeholder {
                 color: #94a3b8 !important;
                 opacity: 0.8 !important;
-                font-size: 0.95rem !important;
             }
-            
-          
             
             .login-button {
                 width: 100%;
-                padding: 16px !important;
+                padding: 14px !important;
                 background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-indigo) 100%) !important;
                 border: none !important;
-                border-radius: 10px !important;
+                border-radius: 8px !important;
                 color: white !important;
-                font-size: 1.15rem !important;
-                font-weight: 800 !important;
+                font-size: 1.1rem !important;
+                font-weight: 700 !important;
                 cursor: pointer !important;
                 transition: all 0.3s ease !important;
                 margin-top: 10px !important;
-                margin-bottom: 20px !important;
-                box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4) !important;
-                letter-spacing: 0.5px;
-                text-transform: uppercase;
-            }
-            
-            .login-button:hover {
-                transform: translateY(-3px) !important;
-                box-shadow: 0 10px 25px rgba(109, 40, 217, 0.5) !important;
-                background: linear-gradient(135deg, var(--primary-indigo) 0%, #4338ca 100%) !important;
-            }
-            
-            .login-button:active {
-                transform: translateY(-1px) !important;
                 box-shadow: 0 4px 15px rgba(109, 40, 217, 0.3) !important;
             }
             
-            .forgot-password {
-                text-align: center;
-                margin-top: 15px;
-                margin-bottom: 25px;
+            .login-button:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4) !important;
+                background: linear-gradient(135deg, var(--primary-indigo) 0%, var(--primary-purple) 100%) !important;
             }
             
-            .forgot-password a {
-                color: var(--primary-indigo) !important;
-                text-decoration: none;
-                font-size: 0.95rem;
-                font-weight: 600;
-                transition: color 0.3s ease;
-                display: inline-flex;
-                align-items: center;
-            }
-            
-            .forgot-password a:hover {
-                color: var(--primary-purple) !important;
-                text-decoration: underline;
-            }
-            
-            .forgot-password a:before {
-                content: "🔐";
-                margin-right: 6px;
-            }
-            
-            .system-info-panel {
-                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                border-radius: 10px;
-                padding: 15px;
-                margin: 25px 0;
-                border-left: 4px solid var(--accent-amber);
-            }
-            
-            .system-info-panel p {
-                margin: 8px 0;
-                color: #475569;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
+            .login-button:active {
+                transform: translateY(0) !important;
             }
             
             .login-footer {
@@ -328,109 +199,41 @@
             .login-footer p {
                 color: #64748b;
                 font-size: 0.9rem;
-                margin: 5px 0;
-                opacity: 0.9;
-            }
-            
-            .login-footer .copyright {
-                font-size: 0.85rem;
-                opacity: 0.7;
-                margin-top: 10px;
+                margin: 0;
+                opacity: 0.8;
             }
             
             /* Estilos para mensajes */
             .ui-messages {
                 margin-bottom: 25px !important;
-                border-radius: 10px !important;
-                border: none !important;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-            }
-            
-            .ui-messages-error {
-                background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
-                border-left: 4px solid var(--error-red) !important;
-            }
-            
-            .ui-messages-info {
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
-                border-left: 4px solid var(--primary-indigo) !important;
-            }
-            
-            /* Estilos para mensajes de validación */
-            .ui-message-error {
-                color: var(--error-red) !important;
-                font-size: 0.9rem !important;
-                margin-top: 5px !important;
-                font-weight: 600 !important;
+                border-radius: 8px !important;
             }
             
             /* Responsive */
             @media (max-width: 480px) {
                 .login-card {
-                    padding: 30px 25px;
+                    padding: 30px 20px;
                     margin: 0 15px;
-                    border-radius: 15px;
                 }
                 
                 .login-header h1 {
-                    font-size: 2rem;
+                    font-size: 1.8rem;
                 }
                 
                 .login-header h2 {
-                    font-size: 1.4rem;
+                    font-size: 1.3rem;
                 }
                 
                 .login-container {
                     background-attachment: scroll;
-                    padding: 15px;
-                }
-                
-                .ui-inputtext, .ui-password {
-                    padding: 12px 14px !important;
-                    font-size: 1rem !important;
-                }
-                
-                .login-button {
-                    padding: 14px !important;
-                    font-size: 1.1rem !important;
                 }
             }
             
             @media (max-height: 600px) {
                 .login-container {
-                    padding: 30px 20px;
-                    min-height: 100vh;
+                    padding: 40px 20px;
                 }
             }
-            
-            /* Animación de entrada para inputs */
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateX(-20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-            
-       
         </style>
-        
-        <!-- Script para manejar el recuerdo de usuario -->
-        <script>
-            // Cargar usuario recordado al cargar la página
-            document.addEventListener('DOMContentLoaded', function() {
-                var savedUsername = localStorage.getItem('monster_university_username');
-                if (savedUsername) {
-                    document.getElementById('loginForm:username').value = savedUsername;
-                    document.getElementById('loginForm:remember').checked = true;
-                }
-                
-                // Guardar usuario si está marcado "Recordar mi usuario"
-                
-            });
-        </script>
     </h:body>
 </html>

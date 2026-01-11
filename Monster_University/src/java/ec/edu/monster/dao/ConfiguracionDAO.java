@@ -9,23 +9,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 
 public class ConfiguracionDAO {
     
     private MongoDatabase database;
     private MongoCollection<Document> collection;
-    private final String COLECCION = "configuraciones";
     
     public ConfiguracionDAO() {
         Conexion conexion = new Conexion().crearConexion();
         if (conexion != null && conexion.isConectado()) {
             database = conexion.getDataB();
-            collection = database.getCollection(COLECCION);
-            System.out.println("Colección '" + COLECCION + "' obtenida correctamente");
+            collection = database.getCollection("configuraciones");
+            System.out.println("Colección 'configuraciones' obtenida correctamente");
         } else {
             System.err.println("Error: No hay conexión a la base de datos");
-            throw new RuntimeException("No se pudo conectar a la base de datos");
         }
     }
     
@@ -36,7 +33,7 @@ public class ConfiguracionDAO {
         try {
             Document doc = collection.find(Filters.eq("tipo", tipo)).first();
             
-            if (doc != null && doc.containsKey("valores")) {
+            if (doc != null) {
                 List<Document> listaValores = (List<Document>) doc.get("valores");
                 
                 for (Document valorDoc : listaValores) {
@@ -48,7 +45,6 @@ public class ConfiguracionDAO {
             }
         } catch (Exception e) {
             System.err.println("Error al obtener valores de tipo " + tipo + ": " + e.getMessage());
-            e.printStackTrace();
         }
         
         return valores;
@@ -60,13 +56,10 @@ public class ConfiguracionDAO {
         
         try {
             for (Document doc : collection.find()) {
-                if (doc.containsKey("tipo")) {
-                    tipos.add(doc.getString("tipo"));
-                }
+                tipos.add(doc.getString("tipo"));
             }
         } catch (Exception e) {
             System.err.println("Error al obtener tipos: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return tipos;
@@ -77,7 +70,7 @@ public class ConfiguracionDAO {
         try {
             Document doc = collection.find(Filters.eq("tipo", tipo)).first();
             
-            if (doc != null && doc.containsKey("valores")) {
+            if (doc != null) {
                 List<Document> listaValores = (List<Document>) doc.get("valores");
                 
                 for (Document valorDoc : listaValores) {
@@ -88,73 +81,8 @@ public class ConfiguracionDAO {
             }
         } catch (Exception e) {
             System.err.println("Error al obtener nombre: " + e.getMessage());
-            e.printStackTrace();
         }
         
-        return null; // Retornar null en lugar del código para indicar que no se encontró
-    }
-    
-    // Obtener el código por nombre
-    public String obtenerCodigoPorNombre(String tipo, String nombre) {
-        try {
-            Document doc = collection.find(Filters.eq("tipo", tipo)).first();
-            
-            if (doc != null && doc.containsKey("valores")) {
-                List<Document> listaValores = (List<Document>) doc.get("valores");
-                
-                for (Document valorDoc : listaValores) {
-                    if (valorDoc.getString("nombre").equalsIgnoreCase(nombre)) {
-                        return valorDoc.getString("codigo");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error al obtener código: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        return null;
-    }
-    
-    // Obtener documento completo por tipo
-    public Document obtenerDocumentoPorTipo(String tipo) {
-        try {
-            return collection.find(Filters.eq("tipo", tipo)).first();
-        } catch (Exception e) {
-            System.err.println("Error al obtener documento: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    // Verificar si un tipo de configuración existe
-    public boolean existeTipo(String tipo) {
-        try {
-            long count = collection.countDocuments(Filters.eq("tipo", tipo));
-            return count > 0;
-        } catch (Exception e) {
-            System.err.println("Error al verificar tipo: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    // Agregar nuevo valor a un tipo existente
-    public boolean agregarValor(String tipo, String codigo, String nombre) {
-        try {
-            Document nuevoValor = new Document("codigo", codigo)
-                    .append("nombre", nombre);
-            
-            Document update = new Document("$push", 
-                new Document("valores", nuevoValor)
-            );
-            
-            collection.updateOne(Filters.eq("tipo", tipo), update);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error al agregar valor: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        return codigo; 
     }
 }
