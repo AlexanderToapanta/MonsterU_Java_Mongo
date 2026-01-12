@@ -8,23 +8,31 @@
 
     <ui:composition>
 
-        <p:dialog id="MecarrCarreraEditDlg" widgetVar="MecarrCarreraEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditMecarrCarreraTitle}">
-            <h:form id="MecarrCarreraEditForm">
-                <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{mecarrCarreraController.selected != null}">
-                        <p:outputLabel value="#{bundle.EditMecarrCarreraLabel_mecarrId}" for="mecarrId" />
-                        <p:inputText id="mecarrId" value="#{mecarrCarreraController.selected.mecarrId}" title="#{bundle.EditMecarrCarreraTitle_mecarrId}" required="true" requiredMessage="#{bundle.EditMecarrCarreraRequiredMessage_mecarrId}" readonly="true" disabled="true"/>
-                        <p:outputLabel value="#{bundle.EditMecarrCarreraLabel_mecarrNombre}" for="mecarrNombre" />
-                        <p:inputText id="mecarrNombre" value="#{mecarrCarreraController.selected.mecarrNombre}" title="#{bundle.EditMecarrCarreraTitle_mecarrNombre}" required="true" requiredMessage="#{bundle.EditMecarrCarreraRequiredMessage_mecarrNombre}"/>
-                        <p:outputLabel value="#{bundle.EditMecarrCarreraLabel_mecarrMaxCred}" for="mecarrMaxCred" />
-                        <p:inputText id="mecarrMaxCred" value="#{mecarrCarreraController.selected.mecarrMaxCred}" title="#{bundle.EditMecarrCarreraTitle_mecarrMaxCred}" required="true" requiredMessage="#{bundle.EditMecarrCarreraRequiredMessage_mecarrMaxCred}"/>
-                        <p:outputLabel value="#{bundle.EditMecarrCarreraLabel_mecarrMinCred}" for="mecarrMinCred" />
-                        <p:inputText id="mecarrMinCred" value="#{mecarrCarreraController.selected.mecarrMinCred}" title="#{bundle.EditMecarrCarreraTitle_mecarrMinCred}" required="true" requiredMessage="#{bundle.EditMecarrCarreraRequiredMessage_mecarrMinCred}"/>
+        <p:dialog id="CarreraEditDlg" widgetVar="CarreraEditDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Editar carrera">
+            <h:form id="CarreraEditForm">
+                <h:panelGroup id="displayEdit">
+                    <p:panelGrid columns="2" rendered="#{carreraController.selected != null}">
+                        <p:outputLabel value="Código:" for="codigoEdit" />
+                        <p:outputLabel id="codigoEdit" value="#{carreraController.selected.codigo}" />
+                        
+                        <p:outputLabel value="Nombre:" for="nombreEdit" />
+                        <p:inputText id="nombreEdit" value="#{carreraController.selected.nombre}" 
+                                   required="true" />
+                        
+                        <p:outputLabel value="Créditos Máximos:" for="creditosMaximosEdit" />
+                        <p:inputText id="creditosMaximosEdit" value="#{carreraController.selected.creditosMaximos}" 
+                                   required="true" />
+                        
+                        <p:outputLabel value="Créditos Mínimos:" for="creditosMinimosEdit" />
+                        <p:inputText id="creditosMinimosEdit" value="#{carreraController.selected.creditosMinimos}" 
+                                   required="true" />
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{mecarrCarreraController.update}" value="#{bundle.Save}" update="display,:MecarrCarreraListForm:datalist,:growl" oncomplete="handleSubmit(args, 'MecarrCarreraEditDialog');">
-                        <p:confirm header="Confirmar guardado" message="¿Deseas guardar los cambios?" icon="pi pi-question-circle"/>
-                    </p:commandButton>
-                    <p:commandButton value="#{bundle.Cancel}" onclick="MecarrCarreraEditDialog.hide()"/>
+                    <p:commandButton actionListener="#{carreraController.update}" value="Actualizar" 
+                                   update="displayEdit,:CarreraListForm:datalist,:growl" 
+                                   oncomplete="if(!args.validationFailed) PF('CarreraEditDialog').hide();"/>
+                    <p:commandButton value="Cancelar" 
+                                   onclick="PF('CarreraEditDialog').hide()" immediate="true"/>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

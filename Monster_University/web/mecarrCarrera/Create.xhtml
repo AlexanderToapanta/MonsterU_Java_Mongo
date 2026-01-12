@@ -8,21 +8,32 @@
 
     <ui:composition>
 
-        <p:dialog id="MecarrCarreraCreateDlg" widgetVar="MecarrCarreraCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateMecarrCarreraTitle}">
-            <h:form id="MecarrCarreraCreateForm">
+        <p:dialog id="CarreraCreateDlg" widgetVar="CarreraCreateDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Crear una nueva carrera">
+            <h:form id="CarreraCreateForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{mecarrCarreraController.selected != null}">
-                        <p:outputLabel value="#{bundle.CreateMecarrCarreraLabel_mecarrId}" for="mecarrId" />
-                        <p:inputText id="mecarrId" value="#{mecarrCarreraController.selected.mecarrId}" title="#{bundle.CreateMecarrCarreraTitle_mecarrId}" required="true" requiredMessage="#{bundle.CreateMecarrCarreraRequiredMessage_mecarrId}" readonly="true" disabled="true"/>
-                        <p:outputLabel value="#{bundle.CreateMecarrCarreraLabel_mecarrNombre}" for="mecarrNombre" />
-                        <p:inputText id="mecarrNombre" value="#{mecarrCarreraController.selected.mecarrNombre}" title="#{bundle.CreateMecarrCarreraTitle_mecarrNombre}" required="true" requiredMessage="#{bundle.CreateMecarrCarreraRequiredMessage_mecarrNombre}"/>
-                        <p:outputLabel value="#{bundle.CreateMecarrCarreraLabel_mecarrMaxCred}" for="mecarrMaxCred" />
-                        <p:inputText id="mecarrMaxCred" value="#{mecarrCarreraController.selected.mecarrMaxCred}" title="#{bundle.CreateMecarrCarreraTitle_mecarrMaxCred}" required="true" requiredMessage="#{bundle.CreateMecarrCarreraRequiredMessage_mecarrMaxCred}"/>
-                        <p:outputLabel value="#{bundle.CreateMecarrCarreraLabel_mecarrMinCred}" for="mecarrMinCred" />
-                        <p:inputText id="mecarrMinCred" value="#{mecarrCarreraController.selected.mecarrMinCred}" title="#{bundle.CreateMecarrCarreraTitle_mecarrMinCred}" required="true" requiredMessage="#{bundle.CreateMecarrCarreraRequiredMessage_mecarrMinCred}"/>
+                    <p:panelGrid columns="2">
+                        <p:outputLabel value="Código:" for="codigo" />
+                        <p:inputText id="codigo" value="#{carreraController.current.codigo}" 
+                                   required="true" readonly="true" />
+                        
+                        <p:outputLabel value="Nombre:" for="nombre" />
+                        <p:inputText id="nombre" value="#{carreraController.current.nombre}" 
+                                   required="true" />
+                        
+                        <p:outputLabel value="Créditos Máximos:" for="creditosMaximos" />
+                        <p:inputText id="creditosMaximos" value="#{carreraController.current.creditosMaximos}" 
+                                   required="true" />
+                        
+                        <p:outputLabel value="Créditos Mínimos:" for="creditosMinimos" />
+                        <p:inputText id="creditosMinimos" value="#{carreraController.current.creditosMinimos}" 
+                                   required="true" />
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{mecarrCarreraController.create}" value="#{bundle.Save}" update="display,:MecarrCarreraListForm:datalist,:growl" oncomplete="handleSubmit(args,'MecarrCarreraCreateDialog');"/>
-                    <p:commandButton value="#{bundle.Cancel}" onclick="MecarrCarreraCreateDialog.hide()"/>
+                    <p:commandButton actionListener="#{carreraController.create}" value="Guardar" 
+                                   update="display,:CarreraListForm:datalist,:growl" 
+                                   oncomplete="if(!args.validationFailed) PF('CarreraCreateDialog').hide();"/>
+                    <p:commandButton value="Cancelar" 
+                                   onclick="PF('CarreraCreateDialog').hide()" immediate="true"/>
                 </h:panelGroup>
             </h:form>
         </p:dialog>

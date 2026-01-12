@@ -8,60 +8,76 @@
 
     <ui:composition template="/template.xhtml">
 
-
         <ui:define name="title">
-            <h:outputText value="#{bundle.ListMecarrCarreraTitle}"></h:outputText>
+            <h:outputText value="Lista de Carreras"></h:outputText>
         </ui:define>
 
         <ui:define name="body">
-            <h:form id="MecarrCarreraListForm">
-                <p:panel header="#{bundle.ListMecarrCarreraTitle}">
-                    <p:dataTable id="datalist" value="#{mecarrCarreraController.items}" var="item"
-                                 selection="#{mecarrCarreraController.selectedItems}"
-                                 paginator="true"
-                                 rowKey="#{item.mecarrId}"
+            <h:form id="CarreraListForm">
+                <p:panel header="Lista de Carreras">
+                    <p:dataTable id="datalist" value="#{carreraController.items}" var="item"
+             selectionMode="single" selection="#{carreraController.selected}"
+             paginator="true"
+             rowKey="#{carreraController.getRowKey(item)}"
                                  rows="10"
                                  rowsPerPageTemplate="10,20,30,40,50"
                                  >
 
                         <p:ajax event="rowSelect"   update="createButton viewButton editButton deleteButton"/>
                         <p:ajax event="rowUnselect" update="createButton viewButton editButton deleteButton"/>
-                        <p:ajax event="rowSelectCheckbox"   update="createButton viewButton editButton deleteButton"/>
-                        <p:ajax event="rowUnselectCheckbox" update="createButton viewButton editButton deleteButton"/>
-                        <p:ajax event="toggleSelect" update="createButton viewButton editButton deleteButton"/>
-
-                        <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
 
                         <p:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListMecarrCarreraTitle_mecarrId}"/>
+                                <h:outputText value="Código"/>
                             </f:facet>
-                            <h:outputText value="#{item.mecarrId}"/>
+                            <h:outputText value="#{item.codigo}"/>
                         </p:column>
                         <p:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListMecarrCarreraTitle_mecarrNombre}"/>
+                                <h:outputText value="Nombre"/>
                             </f:facet>
-                            <h:outputText value="#{item.mecarrNombre}"/>
+                            <h:outputText value="#{item.nombre}"/>
                         </p:column>
                         <p:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListMecarrCarreraTitle_mecarrMaxCred}"/>
+                                <h:outputText value="Créditos Máximos"/>
                             </f:facet>
-                            <h:outputText value="#{item.mecarrMaxCred}"/>
+                            <h:outputText value="#{item.creditosMaximos}">
+                                <f:convertNumber type="number"/>
+                            </h:outputText>
                         </p:column>
                         <p:column>
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListMecarrCarreraTitle_mecarrMinCred}"/>
+                                <h:outputText value="Créditos Mínimos"/>
                             </f:facet>
-                            <h:outputText value="#{item.mecarrMinCred}"/>
+                            <h:outputText value="#{item.creditosMinimos}">
+                                <f:convertNumber type="number"/>
+                            </h:outputText>
                         </p:column>
+                        
+                        <!-- Columna adicional para estado si existe -->
+                       
+                        
                         <f:facet name="footer">
-                            <p:commandButton id="createButton" icon="ui-icon-plus"   value="#{bundle.Create}" actionListener="#{mecarrCarreraController.prepareCreate}" update=":MecarrCarreraCreateForm" oncomplete="PF('MecarrCarreraCreateDialog').show()"/>
-                            <p:commandButton id="viewButton"   icon="ui-icon-search" value="#{bundle.View}" actionListener="#{mecarrCarreraController.prepareView}" update=":MecarrCarreraViewForm" oncomplete="PF('MecarrCarreraViewDialog').show()" disabled="#{mecarrCarreraController.selectedItems == null or mecarrCarreraController.selectedItems.size() != 1}"/>
-                            <p:commandButton id="editButton"   icon="ui-icon-pencil" value="#{bundle.Edit}" actionListener="#{mecarrCarreraController.prepareEdit}" update=":MecarrCarreraEditForm" oncomplete="PF('MecarrCarreraEditDialog').show()" disabled="#{mecarrCarreraController.selectedItems == null or mecarrCarreraController.selectedItems.size() != 1}"/>
-                            <p:commandButton id="deleteButton" icon="ui-icon-trash"  value="#{bundle.Delete}" actionListener="#{mecarrCarreraController.destroy}" update=":growl,datalist" disabled="#{mecarrCarreraController.selectedItems == null or mecarrCarreraController.selectedItems.size() == 0}">
-                                <p:confirm header="Confirmar eliminación" message="¿Seguro que deseas eliminar este registro?" icon="pi pi-exclamation-triangle"/>
+                            <p:commandButton id="createButton" icon="ui-icon-plus" value="Crear" 
+                                             actionListener="#{carreraController.prepareCreate}" 
+                                             update=":CarreraCreateForm" 
+                                             oncomplete="PF('CarreraCreateDialog').show()"/>
+                            <p:commandButton id="viewButton" icon="ui-icon-search" value="Vista" 
+                                             update=":CarreraViewForm" 
+                                             oncomplete="PF('CarreraViewDialog').show()" 
+                                             disabled="#{empty carreraController.selected}"/>
+                            <p:commandButton id="editButton" icon="ui-icon-pencil" value="Editar" 
+                                             update=":CarreraEditForm" 
+                                             oncomplete="PF('CarreraEditDialog').show()" 
+                                             disabled="#{empty carreraController.selected}"/>
+                            <p:commandButton id="deleteButton" icon="ui-icon-trash" value="Borrar" 
+                                             actionListener="#{carreraController.destroy}" 
+                                             update=":growl,datalist" 
+                                             disabled="#{empty carreraController.selected}">
+                                <p:confirm header="Confirmar eliminación" 
+                                          message="¿Seguro que deseas eliminar esta carrera?" 
+                                          icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
                         </f:facet>
                     </p:dataTable>
@@ -73,5 +89,4 @@
             <ui:include src="View.xhtml"/>
         </ui:define>
     </ui:composition>
-
 </html>

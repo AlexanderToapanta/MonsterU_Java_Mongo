@@ -8,20 +8,24 @@
 
     <ui:composition>
 
-        <p:dialog id="MecarrCarreraViewDlg" widgetVar="MecarrCarreraViewDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.ViewMecarrCarreraTitle}">
-            <h:form id="MecarrCarreraViewForm">
-                <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{mecarrCarreraController.selected != null}">
-                        <h:outputText value="#{bundle.ViewMecarrCarreraLabel_mecarrId}"/>
-                        <h:outputText value="#{mecarrCarreraController.selected.mecarrId}" title="#{bundle.ViewMecarrCarreraTitle_mecarrId}"/>
-                        <h:outputText value="#{bundle.ViewMecarrCarreraLabel_mecarrNombre}"/>
-                        <h:outputText value="#{mecarrCarreraController.selected.mecarrNombre}" title="#{bundle.ViewMecarrCarreraTitle_mecarrNombre}"/>
-                        <h:outputText value="#{bundle.ViewMecarrCarreraLabel_mecarrMaxCred}"/>
-                        <h:outputText value="#{mecarrCarreraController.selected.mecarrMaxCred}" title="#{bundle.ViewMecarrCarreraTitle_mecarrMaxCred}"/>
-                        <h:outputText value="#{bundle.ViewMecarrCarreraLabel_mecarrMinCred}"/>
-                        <h:outputText value="#{mecarrCarreraController.selected.mecarrMinCred}" title="#{bundle.ViewMecarrCarreraTitle_mecarrMinCred}"/>
+        <p:dialog id="CarreraViewDlg" widgetVar="CarreraViewDialog" modal="true" 
+                  resizable="false" appendTo="@(body)" header="Ver carrera">
+            <h:form id="CarreraViewForm">
+                <h:panelGroup id="displayView">
+                    <p:panelGrid columns="2" rendered="#{carreraController.selected != null}">
+                        <p:outputLabel value="Código:" for="codigoView" />
+                        <p:outputLabel id="codigoView" value="#{carreraController.selected.codigo}" />
+                        
+                        <p:outputLabel value="Nombre:" for="nombreView" />
+                        <p:outputLabel id="nombreView" value="#{carreraController.selected.nombre}" />
+                        
+                        <p:outputLabel value="Créditos Máximos:" for="creditosMaximosView" />
+                        <p:outputLabel id="creditosMaximosView" value="#{carreraController.selected.creditosMaximos}" />
+                        
+                        <p:outputLabel value="Créditos Mínimos:" for="creditosMinimosView" />
+                        <p:outputLabel id="creditosMinimosView" value="#{carreraController.selected.creditosMinimos}" />
                     </p:panelGrid>
-                    <p:commandButton value="#{bundle.Close}" onclick="MecarrCarreraViewDialog.hide()"/>
+                    <p:commandButton value="Cerrar" onclick="PF('CarreraViewDialog').hide()"/>
                 </h:panelGroup>
             </h:form>
         </p:dialog>
