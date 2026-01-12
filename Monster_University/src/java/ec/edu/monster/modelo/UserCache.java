@@ -5,6 +5,7 @@
 package ec.edu.monster.modelo;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class UserCache implements Serializable {
     private String usuario;
@@ -16,7 +17,9 @@ public class UserCache implements Serializable {
     private String Email;
     private String Documento;
     private String TipoPersona;
-
+ private String rol;
+    private String codigoRol;
+    private List<String> opciones;
     public UserCache() {
     }
 
@@ -91,5 +94,32 @@ public class UserCache implements Serializable {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+    public List<String> getOpciones() {
+        return opciones;
+    }
+    
+    public void setOpciones(List<String> opciones) {
+        this.opciones = opciones;
+    }
+    
+    public boolean tieneOpcion(String codigoOpcion) {
+        return opciones != null && opciones.contains(codigoOpcion);
+    }
+    
+    public String getRol() {
+        return rol;
+    }
+    
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+    
+    public String getCodigoRol() {
+        return codigoRol;
+    }
+    
+    public void setCodigoRol(String codigoRol) {
+        this.codigoRol = codigoRol;
     }
 }

@@ -21,25 +21,72 @@
                     <!-- Tarjeta de Bienvenida -->
                     <p:panel header="Bienvenido al Sistema" style="margin-bottom: 20px; background: rgba(255,255,255,0.95);">
                         <div class="welcome-section">
-                            <h2>Hola, #{loginController.usu.usuario != null ? loginController.usu.usuario : 'Usuario'}</h2>
+                            <h2>Hola, #{loginController.usu.nombre != null ? loginController.usu.nombre : 'Usuario'}</h2>
                             <p>Bienvenido al Sistema de Gestión de Matrículas Monster</p>
                             
                             <div class="user-info" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
                                 <h3>Información de tu cuenta:</h3>
                                 <p:panelGrid columns="2" style="width: 100%;" layout="grid">
                                     <p:outputLabel value="Usuario:"/>
-                                    <p:outputLabel value="#{loginController.usuarioLogueado.xeusuNombre}" 
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.username}" 
+                                                 style="font-weight: bold;"/>
+                                    
+                                    <p:outputLabel value="Nombre:"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.nombres} #{loginController.usuarioLogueado.apellidos}" 
+                                                 style="font-weight: bold;"/>
+                                    
+                                    <p:outputLabel value="Documento:"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.documento}" 
+                                                 style="font-weight: bold;"/>
+                                    
+                                    <p:outputLabel value="Email:"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.email}" 
                                                  style="font-weight: bold;"/>
                                     
                                     <p:outputLabel value="Estado:"/>
-                                    <p:outputLabel value="#{loginController.usuarioLogueado.xeusuEstado}" 
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.estado}" 
                                                  style="font-weight: bold; 
-                                                        color: #{loginController.usuarioLogueado.xeusuEstado == 'ACTIVO' ? 'green' : 'red'};"/>
+                                                        color: #{loginController.usuarioLogueado.estado == 'ACTIVO' ? 'green' : 'red'};"/>
                                     
-                                    <p:outputLabel value="ID Usuario:"/>
-                                    <p:outputLabel value="#{loginController.usuarioLogueado.xeusuId}" 
-                                                 style="font-weight: bold;"/>
+                                    <p:outputLabel value="Rol:"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.rol.nombre}" 
+                                                 style="font-weight: bold; color: #2a64c5;"
+                                                 rendered="#{loginController.usuarioLogueado.rol != null}"/>
+                                    
+                                    <p:outputLabel value="Código Rol:"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.rol.codigo}" 
+                                                 style="font-weight: bold;"
+                                                 rendered="#{loginController.usuarioLogueado.rol != null}"/>
+                                    
+                                    <!-- Información de permisos -->
+                                    <p:outputLabel value="Permisos:" 
+                                                 rendered="#{loginController.usuarioLogueado.rol != null and 
+                                                            loginController.usuarioLogueado.rol.opciones_permitidas != null}"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.rol.opciones_permitidas.size()} opciones" 
+                                                 style="font-weight: bold;"
+                                                 rendered="#{loginController.usuarioLogueado.rol != null and 
+                                                            loginController.usuarioLogueado.rol.opciones_permitidas != null}"/>
+                                    
+                                    <p:outputLabel value="Fecha Ingreso:"/>
+                                    <p:outputLabel value="#{loginController.usuarioLogueado.fecha_ingreso}" 
+                                                 style="font-weight: bold;">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                    </p:outputLabel>
                                 </p:panelGrid>
+                                
+                                <!-- Mostrar opciones permitidas si existen -->
+                                <div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 5px;"
+                                     rendered="#{loginController.usuarioLogueado.rol != null and 
+                                                loginController.usuarioLogueado.rol.opciones_permitidas != null and 
+                                                not empty loginController.usuarioLogueado.rol.opciones_permitidas}">
+                                    <h4 style="color: #2c3e50; margin-bottom: 10px;">Opciones Permitidas:</h4>
+                                    <p:dataList value="#{loginController.usuarioLogueado.rol.opciones_permitidas}" 
+                                                var="opcion" 
+                                                type="unordered"
+                                                style="margin: 0;">
+                                        <h:outputText value="#{opcion}" style="font-size: 0.9rem;"/>
+                                    </p:dataList>
+                                </div>
                             </div>
                         </div>
                     </p:panel>
@@ -51,6 +98,100 @@
                                       icon="pi pi-key"
                                       outcome="/cambioContrasena.xhtml"
                                       styleClass="quick-action-btn"/>
+                            
+                            <!-- Botón para ver mis permisos -->
+                            <p:button value="Mis Permisos" 
+                                      icon="pi pi-shield"
+                                      onclick="PF('permisosDialog').show(); return false;"
+                                      styleClass="quick-action-btn"
+                                      rendered="#{loginController.usuarioLogueado.rol != null}"/>
+                            
+                            <!-- Botón para el menú principal -->
+                            <p:button value="Ir al Menú Principal" 
+                                      icon="pi pi-home"
+                                      outcome="/faces/index1.xhtml"
+                                      styleClass="quick-action-btn"/>
+                        </div>
+                    </p:panel>
+
+                    <!-- Dashboard de Accesos por Categoría -->
+                    <p:panel header="Mis Accesos por Categoría" style="margin-bottom: 20px; background: rgba(255,255,255,0.95);"
+                             rendered="#{loginController.usuarioLogueado.rol != null}">
+                        <div class="access-categories">
+                            <div class="category-grid">
+                                
+                                <!-- Personal -->
+                                <div class="category-card #{loginController.tieneOpcionEnGrupo('PER', 'CRE') ? 'active' : 'inactive'}">
+                                    <div class="category-icon">
+                                        <i class="pi pi-users" style="font-size: 2rem; color: #667eea;"></i>
+                                    </div>
+                                    <h3>Personal</h3>
+                                    <p class="category-status">
+                                        #{loginController.tieneOpcionEnGrupo('PER', 'CRE') ? 'ACCESO PERMITIDO' : 'SIN ACCESO'}
+                                    </p>
+                                    <div class="category-options">
+                                        <p:outputLabel value="Crear Personal" 
+                                                     rendered="#{loginController.tieneOpcion('CRE')}"
+                                                     style="color: green; font-weight: bold;"/>
+                                        <p:outputLabel value="Sin permisos específicos" 
+                                                     rendered="#{not loginController.tieneOpcion('CRE') and loginController.tieneOpcion('PER')}"
+                                                     style="color: orange;"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Finanzas -->
+                                <div class="category-card #{loginController.tieneOpcion('FIN') ? 'active' : 'inactive'}">
+                                    <div class="category-icon">
+                                        <i class="pi pi-money-bill" style="font-size: 2rem; color: #10b981;"></i>
+                                    </div>
+                                    <h3>Finanzas</h3>
+                                    <p class="category-status">
+                                        #{loginController.tieneOpcion('FIN') ? 'ACCESO PERMITIDO' : 'SIN ACCESO'}
+                                    </p>
+                                </div>
+                                
+                                <!-- Académico -->
+                                <div class="category-card #{loginController.tieneOpcionEnGrupo('ACA', 'AC1', 'AC2') ? 'active' : 'inactive'}">
+                                    <div class="category-icon">
+                                        <i class="pi pi-book" style="font-size: 2rem; color: #f59e0b;"></i>
+                                    </div>
+                                    <h3>Académico</h3>
+                                    <p class="category-status">
+                                        #{loginController.tieneOpcionEnGrupo('ACA', 'AC1', 'AC2') ? 'ACCESO PERMITIDO' : 'SIN ACCESO'}
+                                    </p>
+                                    <div class="category-options">
+                                        <p:outputLabel value="Administrar Carreras" 
+                                                     rendered="#{loginController.tieneOpcion('AC1')}"
+                                                     style="color: green; font-weight: bold;"/>
+                                        <p:outputLabel value="Reporte de Carreras" 
+                                                     rendered="#{loginController.tieneOpcion('AC2')}"
+                                                     style="color: green; font-weight: bold;"/>
+                                    </div>
+                                </div>
+                                
+                                <!-- Seguridad -->
+                                <div class="category-card #{loginController.tieneOpcionEnGrupo('SEG', 'SE1', 'SE2', 'SE3') ? 'active' : 'inactive'}">
+                                    <div class="category-icon">
+                                        <i class="pi pi-shield" style="font-size: 2rem; color: #ef4444;"></i>
+                                    </div>
+                                    <h3>Seguridad</h3>
+                                    <p class="category-status">
+                                        #{loginController.tieneOpcionEnGrupo('SEG', 'SE1', 'SE2', 'SE3') ? 'ACCESO PERMITIDO' : 'SIN ACCESO'}
+                                    </p>
+                                    <div class="category-options">
+                                        <p:outputLabel value="Administrar Roles" 
+                                                     rendered="#{loginController.tieneOpcion('SE1')}"
+                                                     style="color: green; font-weight: bold;"/>
+                                        <p:outputLabel value="Asignar Roles" 
+                                                     rendered="#{loginController.tieneOpcion('SE2')}"
+                                                     style="color: green; font-weight: bold;"/>
+                                        <p:outputLabel value="Asignar Opciones" 
+                                                     rendered="#{loginController.tieneOpcion('SE3')}"
+                                                     style="color: green; font-weight: bold;"/>
+                                    </div>
+                                </div>
+                                
+                            </div>
                         </div>
                     </p:panel>
 
@@ -64,39 +205,80 @@
                                         Versión: 1.0<br/>
                                         Desarrollado para la gestión integral de matrículas, estudiantes, asignaturas y docentes.
                                     </p>
+                                    <p style="margin-top: 10px;">
+                                        <strong>Características:</strong><br/>
+                                        • Gestión de Personal<br/>
+                                        • Administración Académica<br/>
+                                        • Control Financiero<br/>
+                                        • Sistema de Seguridad por Roles<br/>
+                                        • Reportes y Estadísticas
+                                    </p>
                                 </p:tab>
                                 
                                 <p:tab title="Últimas Actividades">
                                     <p>No hay actividades recientes.</p>
                                 </p:tab>
+                                
+                                
                             </p:accordionPanel>
                         </div>
                     </p:panel>
                 </div>
             </div>
 
+            <!-- Dialog para mostrar permisos detallados -->
+            <p:dialog header="Mis Permisos Detallados" widgetVar="permisosDialog" modal="true" resizable="false"
+                      rendered="#{loginController.usuarioLogueado.rol != null}"
+                      style="width: 500px; max-width: 90vw;">
+                <h:form>
+                    <div style="padding: 20px;">
+                        <h3 style="color: #2a64c5; margin-bottom: 15px;">
+                            Rol: #{loginController.usuarioLogueado.rol.nombre}
+                        </h3>
+                        
+                        <p:dataTable value="#{loginController.usuarioLogueado.rol.opciones_permitidas}" 
+                                     var="opcion"
+                                     emptyMessage="No tiene opciones asignadas"
+                                     rendered="#{loginController.usuarioLogueado.rol.opciones_permitidas != null}"
+                                     style="width: 100%;">
+                            <p:column headerText="Código">
+                                <h:outputText value="#{opcion}"/>
+                            </p:column>
+                            <p:column headerText="Descripción">
+                                <h:outputText value="#{loginController.obtenerDescripcionOpcion(opcion)}"/>
+                            </p:column>
+                        </p:dataTable>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <p:button value="Cerrar" onclick="PF('permisosDialog').hide(); return false;"
+                                      styleClass="p-button-secondary"/>
+                        </div>
+                    </div>
+                </h:form>
+            </p:dialog>
+
             <style>
-                /* Contenedor principal con imagen de fondo - USANDO LA IMAGEN DEL SEGUNDO CÓDIGO */
-                 .main-background {
-        position: relative;
-        min-height: 100vh;
-        background-image: url('https://www.bangor.ac.uk/sites/default/files/styles/16x9_1100w/public/2020-05/CB%202018%20May%20%2837%29.jpg?h=41ef3158&amp;itok=zGs3cG5Q');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-    }
-    
-    /* Overlay con filtro de color de la paleta - MÁS OSCURO PARA MEJOR LEGIBILIDAD */
-    .background-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4); /* Overlay más oscuro para contraste */
-        z-index: 0;
-    }
+                /* Contenedor principal con imagen de fondo */
+                .main-background {
+                    position: relative;
+                    min-height: 100vh;
+                    background-image: url('https://www.bangor.ac.uk/sites/default/files/styles/16x9_1100w/public/2020-05/CB%202018%20May%20%2837%29.jpg?h=41ef3158&amp;itok=zGs3cG5Q');
+                    background-size: cover;
+                    background-position: center;
+                    background-attachment: fixed;
+                    background-repeat: no-repeat;
+                }
+                
+                /* Overlay */
+                .background-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.4);
+                    z-index: 0;
+                }
                 
                 /* Contenedor del dashboard */
                 .dashboard-container {
@@ -157,6 +339,66 @@
                     font-size: 18px;
                 }
                 
+                /* Estilos para categorías de acceso */
+                .category-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 20px;
+                    margin-top: 15px;
+                }
+                
+                .category-card {
+                    padding: 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                    border: 2px solid #e5e7eb;
+                }
+                
+                .category-card.active {
+                    border-color: #667eea;
+                    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+                }
+                
+                .category-card.inactive {
+                    background: #f9fafb;
+                    opacity: 0.7;
+                }
+                
+                .category-icon {
+                    margin-bottom: 15px;
+                }
+                
+                .category-card h3 {
+                    color: #2c3e50;
+                    margin-bottom: 10px;
+                    font-size: 1.2rem;
+                }
+                
+                .category-status {
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                    padding: 5px 10px;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                }
+                
+                .category-card.active .category-status {
+                    background-color: #d1fae5;
+                    color: #065f46;
+                }
+                
+                .category-card.inactive .category-status {
+                    background-color: #f3f4f6;
+                    color: #6b7280;
+                }
+                
+                .category-options {
+                    margin-top: 10px;
+                    font-size: 0.9rem;
+                }
+                
                 /* Estilos para los paneles */
                 .ui-panel {
                     border-radius: 10px;
@@ -192,6 +434,10 @@
                     .main-background {
                         background-attachment: scroll;
                     }
+                    
+                    .category-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             </style>
         </ui:define>
@@ -200,6 +446,11 @@
             <div style="text-align: center; width: 100%; position: relative; z-index: 2; background: rgba(255,255,255,0.9); padding: 20px;">
                 <p style="color: #2c3e50; font-weight: 600; margin: 0;">
                     Sistema de Matrículas Monster - © 2025
+                </p>
+                <p style="color: #6b7280; font-size: 0.9rem; margin-top: 5px;">
+                    Usuario: #{loginController.usuarioLogueado.username} | 
+                    Rol: #{loginController.usuarioLogueado.rol.nombre} | 
+                    Sesión activa
                 </p>
             </div>
         </ui:define>

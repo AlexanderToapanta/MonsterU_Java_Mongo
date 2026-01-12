@@ -3,7 +3,7 @@ package ec.edu.monster.modelo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
+import ec.edu.monster.modelo.TemplateRol;
 public class Rol implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -49,9 +49,7 @@ public class Rol implements Serializable {
         }
     }
     
-    public boolean tieneOpcion(String opcion) {
-        return opciones_permitidas != null && opciones_permitidas.contains(opcion);
-    }
+  
     
     // Getters y Setters
     public String getCodigo() {
@@ -93,7 +91,22 @@ public class Rol implements Serializable {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+     private TemplateRol templateAsociado;
     
+    public boolean tieneOpcion(String codigoOpcion) {
+        if (opciones_permitidas == null || opciones_permitidas.isEmpty()) {
+            return false;
+        }
+        return opciones_permitidas.contains(codigoOpcion);
+    }
+    
+    public TemplateRol getTemplateAsociado() {
+        return templateAsociado;
+    }
+    
+    public void setTemplateAsociado(TemplateRol templateAsociado) {
+        this.templateAsociado = templateAsociado;
+    }
     @Override
     public String toString() {
         return "Rol{" + 
