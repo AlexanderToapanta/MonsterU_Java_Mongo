@@ -16,8 +16,8 @@
 
     <!-- Reemplaza TODO el contenido de tu XHTML desde la etiqueta <ui:define name="body"> hasta </ui:define> con esto: -->
 
+<!-- Cambia TODAS las referencias de xerolRolController a rolController -->
 <ui:define name="body">
-
     <h:form id="formAsignacion">
         <p:growl id="growl" showDetail="true" life="3000"/>
 
@@ -27,67 +27,67 @@
             <!-- Selección de ROL -->
             <div style="margin-bottom:20px;">
                 <h:outputLabel value="Seleccionar Rol:" style="font-weight:bold; margin-right:10px;"/>
-                <p:selectOneMenu id="rolSel" value="#{xerolRolController.rolSeleccionadoId}"
+                <p:selectOneMenu id="rolSel" value="#{rolController.rolSeleccionadoId}"
                                  style="width:400px;">
                     <f:selectItem itemLabel="-- Seleccione un rol --" itemValue="" />
-                    <f:selectItems value="#{xerolRolController.itemsAvailableSelectOne}"
+                    <f:selectItems value="#{rolController.itemsAvailableSelectOne}"
                                    var="rol"
-                                   itemLabel="#{rol.xerolNombre} (ID: #{rol.xerolId})"
-                                   itemValue="#{rol.xerolId}" />
-                    <p:ajax listener="#{xerolRolController.cargarUsuariosRol}"
+                                   itemLabel="#{rol.nombre} (Código: #{rol.codigo})"
+                                   itemValue="#{rol.codigo}" />
+                    <p:ajax listener="#{rolController.cargarUsuariosRol}"
                             update="panelInfo tblSinRol tblConRol btnMoverDerecha btnMoverIzquierda btnGuardar btnLimpiar growl"/>
                 </p:selectOneMenu>
             </div>
 
             <!-- Panel de información del rol seleccionado -->
             <p:panel id="panelInfo" header="Información del Rol" 
-                    rendered="#{xerolRolController.isRolSeleccionado()}">
+                    rendered="#{rolController.isRolSeleccionado()}">
                 <h:panelGrid columns="2" cellpadding="5">
-                    <h:outputText value="ID del Rol:" style="font-weight:bold;"/>
-                    <h:outputText value="#{xerolRolController.selected.xerolId}"/>
+                    <h:outputText value="Código del Rol:" style="font-weight:bold;"/>
+                    <h:outputText value="#{rolController.selected.codigo}"/>
                     
                     <h:outputText value="Nombre del Rol:" style="font-weight:bold;"/>
-                    <h:outputText value="#{xerolRolController.selected.xerolNombre}"/>
+                    <h:outputText value="#{rolController.selected.nombre}"/>
                     
                     <h:outputText value="Descripción:" style="font-weight:bold;"/>
-                    <h:outputText value="#{xerolRolController.selected.xerolDescri}"/>
+                    <h:outputText value="#{rolController.selected.descripcion}"/>
                     
                     <h:outputText value="Estadísticas:" style="font-weight:bold;"/>
-                    <h:outputText value="Usuarios sin rol: #{xerolRolController.totalUsuariosSinRol} | Usuarios con este rol: #{xerolRolController.totalUsuariosConRol}" 
+                    <h:outputText value="Usuarios sin rol: #{rolController.totalUsuariosSinRol} | Usuarios con este rol: #{rolController.totalUsuariosConRol}" 
                                   style="color: #2c3e50; font-weight: bold;"/>
                 </h:panelGrid>
             </p:panel>
 
             <!-- DOS DATATABLES PARA ASIGNACIÓN -->
-            <div style="margin-top:20px;" rendered="#{xerolRolController.isRolSeleccionado()}">
+            <div style="margin-top:20px;" rendered="#{rolController.isRolSeleccionado()}">
                 <p:panel header="Asignación de Usuarios al Rol">
                     
                     <div style="display: flex; justify-content: space-between; gap: 20px;">
                         
                         <!-- TABLA IZQUIERDA: Usuarios SIN rol -->
                         <div style="flex: 1; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-                            <h4 style="color: #e74c3c; margin-top: 0;">Usuarios SIN rol (#{xerolRolController.totalUsuariosSinRol})</h4>
+                            <h4 style="color: #e74c3c; margin-top: 0;">Usuarios SIN rol (#{rolController.totalUsuariosSinRol})</h4>
                             
                             <p:dataTable id="tblSinRol" 
-                                       value="#{xerolRolController.usuariosSinRol}"
+                                       value="#{rolController.usuariosSinRol}"
                                        var="usuario"
-                                       selection="#{xerolRolController.usuariosSeleccionadosSinRol}"
-                                       rowKey="#{usuario.xeusuId}"
+                                       selection="#{rolController.usuariosSeleccionadosSinRol}"
+                                       rowKey="#{usuario.documento}"
                                        style="width:100%;"
                                        emptyMessage="No hay usuarios sin rol">
                                 
                                 <p:column selectionMode="multiple" style="width:50px;"/>
                                 
-                                <p:column headerText="ID">
-                                    <h:outputText value="#{usuario.xeusuId}"/>
+                                <p:column headerText="Documento">
+                                    <h:outputText value="#{usuario.documento}"/>
                                 </p:column>
                                 
                                 <p:column headerText="Nombre">
-                                    <h:outputText value="#{usuario.xeusuNombre}"/>
+                                    <h:outputText value="#{usuario.nombres} #{usuario.apellidos}"/>
                                 </p:column>
                                 
                                 <p:column headerText="Estado">
-                                    <h:outputText value="#{usuario.xeusuEstado}"/>
+                                    <h:outputText value="#{usuario.estado}"/>
                                 </p:column>
                             </p:dataTable>
                         </div>
@@ -96,47 +96,47 @@
                         <div style="display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 0 10px;">
                             <p:commandButton id="btnMoverDerecha"
                                            value="▶ Asignar"
-                                           action="#{xerolRolController.asignarUsuariosSeleccionados}"
+                                           action="#{rolController.asignarUsuariosSeleccionados}"
                                            icon="pi pi-arrow-right"
                                            update="tblSinRol tblConRol panelInfo growl"
                                            styleClass="ui-button-success"
                                            style="min-width: 120px;"
-                                           disabled="#{empty xerolRolController.usuariosSeleccionadosSinRol}"/>
+                                           disabled="#{empty rolController.usuariosSeleccionadosSinRol}"/>
                             
                             <p:commandButton id="btnMoverIzquierda"
                                            value="◀ Quitar"
-                                           action="#{xerolRolController.quitarUsuariosSeleccionados}"
+                                           action="#{rolController.quitarUsuariosSeleccionados}"
                                            icon="pi pi-arrow-left"
                                            update="tblSinRol tblConRol panelInfo growl"
                                            styleClass="ui-button-warning"
                                            style="min-width: 120px;"
-                                           disabled="#{empty xerolRolController.usuariosSeleccionadosConRol}"/>
+                                           disabled="#{empty rolController.usuariosSeleccionadosConRol}"/>
                         </div>
                         
                         <!-- TABLA DERECHA: Usuarios CON rol -->
                         <div style="flex: 1; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-                            <h4 style="color: #27ae60; margin-top: 0;">Usuarios CON este rol (#{xerolRolController.totalUsuariosConRol})</h4>
+                            <h4 style="color: #27ae60; margin-top: 0;">Usuarios CON este rol (#{rolController.totalUsuariosConRol})</h4>
                             
                             <p:dataTable id="tblConRol" 
-                                       value="#{xerolRolController.usuariosConRol}"
+                                       value="#{rolController.usuariosConRol}"
                                        var="usuario"
-                                       selection="#{xerolRolController.usuariosSeleccionadosConRol}"
-                                       rowKey="#{usuario.xeusuId}"
+                                       selection="#{rolController.usuariosSeleccionadosConRol}"
+                                       rowKey="#{usuario.documento}"
                                        style="width:100%;"
                                        emptyMessage="No hay usuarios con este rol">
                                 
                                 <p:column selectionMode="multiple" style="width:50px;"/>
                                 
-                                <p:column headerText="ID">
-                                    <h:outputText value="#{usuario.xeusuId}"/>
+                                <p:column headerText="Documento">
+                                    <h:outputText value="#{usuario.documento}"/>
                                 </p:column>
                                 
                                 <p:column headerText="Nombre">
-                                    <h:outputText value="#{usuario.xeusuNombre}"/>
+                                    <h:outputText value="#{usuario.nombres} #{usuario.apellidos}"/>
                                 </p:column>
                                 
                                 <p:column headerText="Estado">
-                                    <h:outputText value="#{usuario.xeusuEstado}"/>
+                                    <h:outputText value="#{usuario.estado}"/>
                                 </p:column>
                             </p:dataTable>
                         </div>
@@ -154,17 +154,17 @@
             <div style="margin-top:20px; display: flex; justify-content: center; gap: 15px;">
                 <p:commandButton id="btnGuardar"
                                value="Guardar en Base de Datos" 
-                               action="#{xerolRolController.guardarCambios}"
+                               action="#{rolController.guardarCambios}"
                                icon="pi pi-save"
                                update="growl"
                                styleClass="ui-button-primary"
                                style="min-width: 200px;"
-                               rendered="#{xerolRolController.isRolSeleccionado()}"
-                               disabled="#{not xerolRolController.isRolSeleccionado()}"/>
+                               rendered="#{rolController.isRolSeleccionado()}"
+                               disabled="#{not rolController.isRolSeleccionado()}"/>
                 
                 <p:commandButton id="btnLimpiar"
                                value="Limpiar Selección" 
-                               action="#{xerolRolController.limpiarSeleccion}"
+                               action="#{rolController.limpiarSeleccion}"
                                icon="pi pi-refresh"
                                update="rolSel panelInfo tblSinRol tblConRol btnGuardar growl"
                                style="min-width: 200px;"/>
@@ -173,7 +173,6 @@
         </div>
         
     </h:form>
-
 </ui:define>
 
     <ui:define name="footer">

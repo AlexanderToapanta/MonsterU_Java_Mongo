@@ -287,4 +287,139 @@ public class RolController implements Serializable {
             return null;
         }
     }
+    public List<Rol> getItemsAvailableSelectOne() {
+    if (items == null || items.isEmpty()) {
+        cargarRoles();
+    }
+    return items;
+}
+
+public String getRolSeleccionadoId() {
+    return selected != null ? selected.getCodigo() : null;
+}
+
+public void setRolSeleccionadoId(String rolSeleccionadoId) {
+    if (rolSeleccionadoId != null && !rolSeleccionadoId.isEmpty()) {
+        // Buscar el rol por código
+        Rol rol = findRol(rolSeleccionadoId);
+        if (rol != null) {
+            setSelected(rol);
+        }
+    } else {
+        selected = null;
+    }
+}
+
+// Método para cargar usuarios cuando se selecciona un rol (llamado por AJAX)
+public void cargarUsuariosRol() {
+    if (selected != null && selected.getCodigo() != null) {
+        cargarPersonasPorRol(selected.getCodigo());
+    } else {
+        limpiarSeleccion();
+    }
+}
+
+// Métodos para las tablas de asignación (adaptar nombres)
+public List<Persona> getUsuariosSinRol() {
+    return personasSinRol;
+}
+
+public List<Persona> getUsuariosConRol() {
+    return personasConRol;
+}
+
+public List<Persona> getUsuariosSeleccionadosSinRol() {
+    return personasSeleccionadasSinRol;
+}
+
+public void setUsuariosSeleccionadosSinRol(List<Persona> usuariosSeleccionadosSinRol) {
+    this.personasSeleccionadasSinRol = usuariosSeleccionadosSinRol;
+}
+
+public List<Persona> getUsuariosSeleccionadosConRol() {
+    return personasSeleccionadasConRol;
+}
+
+public void setUsuariosSeleccionadosConRol(List<Persona> usuariosSeleccionadosConRol) {
+    this.personasSeleccionadasConRol = usuariosSeleccionadosConRol;
+}
+
+// Métodos para los botones de mover
+public void asignarUsuariosSeleccionados() {
+    if (selected != null && !personasSeleccionadasSinRol.isEmpty()) {
+        try {
+            for (Persona persona : personasSeleccionadasSinRol) {
+                // Crear objeto rol con los datos del rol seleccionado
+                Rol rolUsuario = new Rol();
+                rolUsuario.setCodigo(selected.getCodigo());
+                rolUsuario.setNombre(selected.getNombre());
+                rolUsuario.setDescripcion(selected.getDescripcion());
+                
+                // Asignar el rol a la persona
+                persona.setRol(rolUsuario);
+                
+                // Actualizar en MongoDB
+                if (personaDAO.actualizarPersona(persona)) {
+                    LOGGER.info("Rol asignado a persona: " + persona.getDocumento());
+                }
+            }
+            
+            // Recargar las listas
+            cargarPersonasPorRol(selected.getCodigo());
+            
+            // Limpiar selección
+            personasSeleccionadasSinRol.clear();
+            
+            addSuccessMessage("Roles asignados correctamente a " + personasSeleccionadasSinRol.size() + " usuario(s)");
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al asignar roles", e);
+            addErrorMessage("Error al asignar roles: " + e.getMessage());
+        }
+    }
+}
+
+public void quitarUsuariosSeleccionados() {
+    if (selected != null && !personasSeleccionadasConRol.isEmpty()) {
+        try {
+            for (Persona persona : personasSeleccionadasConRol) {
+                // Quitar el rol (establecer null)
+                persona.setRol(null);
+                
+                // Actualizar en MongoDB
+                if (personaDAO.actualizarPersona(persona)) {
+                    LOGGER.info("Rol quitado de persona: " + persona.getDocumento());
+                }
+            }
+            
+            // Recargar las listas
+            cargarPersonasPorRol(selected.getCodigo());
+            
+            // Limpiar selección
+            personasSeleccionadasConRol.clear();
+            
+            addSuccessMessage("Roles quitados correctamente de " + personasSeleccionadasConRol.size() + " usuario(s)");
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error al quitar roles", e);
+            addErrorMessage("Error al quitar roles: " + e.getMessage());
+        }
+    }
+}
+
+public void guardarCambios() {
+    if (selected != null) {
+        addSuccessMessage("Cambios guardados exitosamente para el rol: " + selected.getNombre());
+    } else {
+        addErrorMessage("Seleccione un rol primero");
+    }
+}
+
+public int getTotalUsuariosSinRol() {
+    return personasSinRol != null ? personasSinRol.size() : 0;
+}
+
+public int getTotalUsuariosConRol() {
+    return personasConRol != null ? personasConRol.size() : 0;
+}
 }
