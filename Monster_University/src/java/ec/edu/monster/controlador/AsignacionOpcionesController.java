@@ -23,16 +23,16 @@ public class AsignacionOpcionesController implements Serializable {
     private ConfiguracionDAO configuracionDAO;
     
     // Variables de estado
-    private String rolSeleccionadoCodigo;
+    private String rolSeleccionadoId; // CAMBIADO de rolSeleccionadoCodigo
     private Rol rolSeleccionado;
-    private List<Rol> rolesDisponibles;
+    private List<Rol> itemsAvailableSelectOne; // CAMBIADO de rolesDisponibles
     private List<Map<String, String>> todasOpcionesSistema;
     private List<Map<String, String>> opcionesAsignadas;
-    private List<Map<String, String>> opcionesNoAsignadasTemp;
+    private List<Map<String, String>> opcionesSinAsignar; // CAMBIADO de opcionesNoAsignadasTemp
     
     // Selecciones en tablas
-    private List<Map<String, String>> selectedOpcionesNoAsignadas;
-    private List<Map<String, String>> selectedOpcionesAsignadas;
+    private List<Map<String, String>> opcionesSeleccionadasSinAsignar; // CAMBIADO de selectedOpcionesNoAsignadas
+    private List<Map<String, String>> opcionesSeleccionadasAsignadas; // CAMBIADO de selectedOpcionesAsignadas
     
     // Para asignación rápida
     private String opcionSeleccionadaCodigo;
@@ -50,20 +50,20 @@ public class AsignacionOpcionesController implements Serializable {
         
         // Inicializar listas vacías
         opcionesAsignadas = new ArrayList<>();
-        opcionesNoAsignadasTemp = new ArrayList<>();
-        selectedOpcionesNoAsignadas = new ArrayList<>();
-        selectedOpcionesAsignadas = new ArrayList<>();
+        opcionesSinAsignar = new ArrayList<>();
+        opcionesSeleccionadasSinAsignar = new ArrayList<>();
+        opcionesSeleccionadasAsignadas = new ArrayList<>();
     }
     
     // ========== MÉTODOS DE CARGA ==========
     
     private void cargarRolesDisponibles() {
         try {
-            rolesDisponibles = rolDAO.listarActivos();
-            System.out.println("Roles activos cargados: " + rolesDisponibles.size());
+            itemsAvailableSelectOne = rolDAO.listarActivos(); // CAMBIADO
+            System.out.println("Roles activos cargados: " + itemsAvailableSelectOne.size());
         } catch (Exception e) {
             System.err.println("Error al cargar roles: " + e.getMessage());
-            rolesDisponibles = new ArrayList<>();
+            itemsAvailableSelectOne = new ArrayList<>(); // CAMBIADO
             
             // Datos de ejemplo para desarrollo
             Rol admin = new Rol();
@@ -72,7 +72,7 @@ public class AsignacionOpcionesController implements Serializable {
             admin.setDescripcion("Administrador del Sistema");
             admin.setOpciones_permitidas(new ArrayList<>());
             
-            rolesDisponibles.add(admin);
+            itemsAvailableSelectOne.add(admin); // CAMBIADO
         }
     }
     
@@ -107,19 +107,19 @@ public class AsignacionOpcionesController implements Serializable {
     
     // ========== MÉTODOS PRINCIPALES ==========
     
-    public void cargarAsignacionesPorRol() {
-        System.out.println("Cargando asignaciones para rol código: " + rolSeleccionadoCodigo);
+    public void cargarOpcionesRol() { // CAMBIADO de cargarAsignacionesPorRol
+        System.out.println("Cargando asignaciones para rol código: " + rolSeleccionadoId);
         
-        if (rolSeleccionadoCodigo == null || rolSeleccionadoCodigo.trim().isEmpty()) {
+        if (rolSeleccionadoId == null || rolSeleccionadoId.trim().isEmpty()) {
             rolSeleccionado = null;
             opcionesAsignadas.clear();
-            opcionesNoAsignadasTemp.clear();
+            opcionesSinAsignar.clear();
             return;
         }
         
         try {
             // Buscar rol por código
-            rolSeleccionado = rolDAO.buscarPorCodigo(rolSeleccionadoCodigo);
+            rolSeleccionado = rolDAO.buscarPorCodigo(rolSeleccionadoId); // CAMBIADO
             
             if (rolSeleccionado != null) {
                 System.out.println("Rol encontrado: " + rolSeleccionado.getNombre() + 
@@ -133,15 +133,15 @@ public class AsignacionOpcionesController implements Serializable {
                 prepararOpcionesNoAsignadas();
                 
                 // Limpiar selecciones
-                selectedOpcionesNoAsignadas.clear();
-                selectedOpcionesAsignadas.clear();
+                opcionesSeleccionadasSinAsignar.clear(); // CAMBIADO
+                opcionesSeleccionadasAsignadas.clear(); // CAMBIADO
                 
                 mostrarMensajeInfo("Rol '" + rolSeleccionado.getNombre() + "' cargado correctamente");
             } else {
-                System.err.println("No se encontró el rol con código: " + rolSeleccionadoCodigo);
+                System.err.println("No se encontró el rol con código: " + rolSeleccionadoId); // CAMBIADO
                 mostrarMensajeError("No se encontró el rol seleccionado");
                 opcionesAsignadas.clear();
-                opcionesNoAsignadasTemp.clear();
+                opcionesSinAsignar.clear(); // CAMBIADO
             }
         } catch (Exception e) {
             System.err.println("Error al cargar asignaciones: " + e.getMessage());
@@ -165,27 +165,27 @@ public class AsignacionOpcionesController implements Serializable {
     }
     
     private void prepararOpcionesNoAsignadas() {
-        opcionesNoAsignadasTemp.clear();
+        opcionesSinAsignar.clear(); // CAMBIADO
         
         if (rolSeleccionado != null && todasOpcionesSistema != null) {
             List<String> codigosAsignados = rolSeleccionado.getOpciones_permitidas();
             
             for (Map<String, String> opcion : todasOpcionesSistema) {
                 if (!codigosAsignados.contains(opcion.get("codigo"))) {
-                    opcionesNoAsignadasTemp.add(opcion);
+                    opcionesSinAsignar.add(opcion); // CAMBIADO
                 }
             }
         }
     }
     
-    public List<Map<String, String>> getOpcionesNoAsignadas() {
-        return opcionesNoAsignadasTemp;
+    public List<Map<String, String>> getOpcionesSinAsignar() { // CAMBIADO de getOpcionesNoAsignadas
+        return opcionesSinAsignar;
     }
     
     // ========== MÉTODOS DE ASIGNACIÓN/RETIRO ==========
     
     public void asignarOpcionesSeleccionadas() {
-        if (selectedOpcionesNoAsignadas == null || selectedOpcionesNoAsignadas.isEmpty()) {
+        if (opcionesSeleccionadasSinAsignar == null || opcionesSeleccionadasSinAsignar.isEmpty()) { // CAMBIADO
             mostrarMensajeAdvertencia("Seleccione al menos una opción para asignar");
             return;
         }
@@ -197,7 +197,7 @@ public class AsignacionOpcionesController implements Serializable {
         
         try {
             int asignadasCount = 0;
-            for (Map<String, String> opcion : selectedOpcionesNoAsignadas) {
+            for (Map<String, String> opcion : opcionesSeleccionadasSinAsignar) { // CAMBIADO
                 String codigoOpcion = opcion.get("codigo");
                 
                 // Verificar si ya está asignada (por si acaso)
@@ -219,7 +219,7 @@ public class AsignacionOpcionesController implements Serializable {
             prepararOpcionesNoAsignadas();
             
             // Limpiar selección
-            selectedOpcionesNoAsignadas.clear();
+            opcionesSeleccionadasSinAsignar.clear(); // CAMBIADO
             
             if (asignadasCount > 0) {
                 mostrarMensajeExito(asignadasCount + " opción(es) asignada(s) correctamente");
@@ -234,9 +234,9 @@ public class AsignacionOpcionesController implements Serializable {
         }
     }
     
-    public void retirarOpcionesSeleccionadas() {
-        if (selectedOpcionesAsignadas == null || selectedOpcionesAsignadas.isEmpty()) {
-            mostrarMensajeAdvertencia("Seleccione al menos una opción para retirar");
+    public void quitarOpcionesSeleccionadas() { // CAMBIADO de retirarOpcionesSeleccionadas
+        if (opcionesSeleccionadasAsignadas == null || opcionesSeleccionadasAsignadas.isEmpty()) { // CAMBIADO
+            mostrarMensajeAdvertencia("Seleccione al menos una opción para quitar");
             return;
         }
         
@@ -246,8 +246,8 @@ public class AsignacionOpcionesController implements Serializable {
         }
         
         try {
-            int retiradasCount = 0;
-            for (Map<String, String> opcion : selectedOpcionesAsignadas) {
+            int quitadasCount = 0;
+            for (Map<String, String> opcion : opcionesSeleccionadasAsignadas) { // CAMBIADO
                 String codigoOpcion = opcion.get("codigo");
                 
                 // Eliminar del rol
@@ -256,8 +256,8 @@ public class AsignacionOpcionesController implements Serializable {
                 if (eliminado) {
                     // Actualizar lista local
                     rolSeleccionado.eliminarOpcion(codigoOpcion);
-                    retiradasCount++;
-                    System.out.println("Opción retirada: " + codigoOpcion + " del rol: " + rolSeleccionado.getCodigo());
+                    quitadasCount++;
+                    System.out.println("Opción quitada: " + codigoOpcion + " del rol: " + rolSeleccionado.getCodigo());
                 }
             }
             
@@ -266,23 +266,23 @@ public class AsignacionOpcionesController implements Serializable {
             prepararOpcionesNoAsignadas();
             
             // Limpiar selección
-            selectedOpcionesAsignadas.clear();
+            opcionesSeleccionadasAsignadas.clear(); // CAMBIADO
             
-            if (retiradasCount > 0) {
-                mostrarMensajeExito(retiradasCount + " opción(es) retirada(s) correctamente");
+            if (quitadasCount > 0) {
+                mostrarMensajeExito(quitadasCount + " opción(es) quitada(s) correctamente");
             } else {
-                mostrarMensajeAdvertencia("No se retiraron opciones (posiblemente ya no estaban asignadas)");
+                mostrarMensajeAdvertencia("No se quitaron opciones (posiblemente ya no estaban asignadas)");
             }
             
         } catch (Exception e) {
-            System.err.println("Error al retirar opciones: " + e.getMessage());
+            System.err.println("Error al quitar opciones: " + e.getMessage());
             e.printStackTrace();
-            mostrarMensajeError("Error al retirar opciones: " + e.getMessage());
+            mostrarMensajeError("Error al quitar opciones: " + e.getMessage());
         }
     }
     
     public void asignarOpcionARol() {
-        if (rolSeleccionadoCodigo == null || rolSeleccionadoCodigo.trim().isEmpty()) {
+        if (rolSeleccionadoId == null || rolSeleccionadoId.trim().isEmpty()) { // CAMBIADO
             mostrarMensajeError("Seleccione un rol primero");
             return;
         }
@@ -295,7 +295,7 @@ public class AsignacionOpcionesController implements Serializable {
         try {
             // Asegurar que el rol esté cargado
             if (rolSeleccionado == null) {
-                rolSeleccionado = rolDAO.buscarPorCodigo(rolSeleccionadoCodigo);
+                rolSeleccionado = rolDAO.buscarPorCodigo(rolSeleccionadoId); // CAMBIADO
             }
             
             if (rolSeleccionado != null) {
@@ -356,19 +356,28 @@ public class AsignacionOpcionesController implements Serializable {
         }
     }
     
-    public void reiniciarFiltros() {
-        rolSeleccionadoCodigo = null;
+    public void limpiarSeleccion() { // CAMBIADO de reiniciarFiltros
+        rolSeleccionadoId = null; // CAMBIADO
         rolSeleccionado = null;
         opcionesAsignadas.clear();
-        opcionesNoAsignadasTemp.clear();
-        selectedOpcionesNoAsignadas.clear();
-        selectedOpcionesAsignadas.clear();
+        opcionesSinAsignar.clear(); // CAMBIADO
+        opcionesSeleccionadasSinAsignar.clear(); // CAMBIADO
+        opcionesSeleccionadasAsignadas.clear(); // CAMBIADO
         opcionSeleccionadaCodigo = null;
         
         mostrarMensajeInfo("Selección limpiada");
     }
     
     // ========== MÉTODOS UTILITARIOS ==========
+    
+    // MÉTODOS NUEVOS QUE NECESITAS AGREGAR
+    public int getTotalOpcionesSinAsignar() {
+        return opcionesSinAsignar != null ? opcionesSinAsignar.size() : 0;
+    }
+    
+    public int getTotalOpcionesAsignadas() {
+        return opcionesAsignadas != null ? opcionesAsignadas.size() : 0;
+    }
     
     private void mostrarMensajeExito(String mensaje) {
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", mensaje);
@@ -396,12 +405,12 @@ public class AsignacionOpcionesController implements Serializable {
     
     // ========== GETTERS Y SETTERS ==========
     
-    public String getRolSeleccionadoCodigo() {
-        return rolSeleccionadoCodigo;
+    public String getRolSeleccionadoId() { // CAMBIADO de getRolSeleccionadoCodigo
+        return rolSeleccionadoId;
     }
     
-    public void setRolSeleccionadoCodigo(String rolSeleccionadoCodigo) {
-        this.rolSeleccionadoCodigo = rolSeleccionadoCodigo;
+    public void setRolSeleccionadoId(String rolSeleccionadoId) { // CAMBIADO de setRolSeleccionadoCodigo
+        this.rolSeleccionadoId = rolSeleccionadoId;
     }
     
     public Rol getRolSeleccionado() {
@@ -412,8 +421,8 @@ public class AsignacionOpcionesController implements Serializable {
         this.rolSeleccionado = rolSeleccionado;
     }
     
-    public List<Rol> getRolesDisponibles() {
-        return rolesDisponibles;
+    public List<Rol> getItemsAvailableSelectOne() { // CAMBIADO de getRolesDisponibles
+        return itemsAvailableSelectOne;
     }
     
     public List<Map<String, String>> getTodasOpcionesSistema() {
@@ -428,20 +437,20 @@ public class AsignacionOpcionesController implements Serializable {
         this.opcionesAsignadas = opcionesAsignadas;
     }
     
-    public List<Map<String, String>> getSelectedOpcionesNoAsignadas() {
-        return selectedOpcionesNoAsignadas;
+    public List<Map<String, String>> getOpcionesSeleccionadasSinAsignar() { // CAMBIADO de getSelectedOpcionesNoAsignadas
+        return opcionesSeleccionadasSinAsignar;
     }
     
-    public void setSelectedOpcionesNoAsignadas(List<Map<String, String>> selectedOpcionesNoAsignadas) {
-        this.selectedOpcionesNoAsignadas = selectedOpcionesNoAsignadas;
+    public void setOpcionesSeleccionadasSinAsignar(List<Map<String, String>> opcionesSeleccionadasSinAsignar) {
+        this.opcionesSeleccionadasSinAsignar = opcionesSeleccionadasSinAsignar;
     }
     
-    public List<Map<String, String>> getSelectedOpcionesAsignadas() {
-        return selectedOpcionesAsignadas;
+    public List<Map<String, String>> getOpcionesSeleccionadasAsignadas() { // CAMBIADO de getSelectedOpcionesAsignadas
+        return opcionesSeleccionadasAsignadas;
     }
     
-    public void setSelectedOpcionesAsignadas(List<Map<String, String>> selectedOpcionesAsignadas) {
-        this.selectedOpcionesAsignadas = selectedOpcionesAsignadas;
+    public void setOpcionesSeleccionadasAsignadas(List<Map<String, String>> opcionesSeleccionadasAsignadas) {
+        this.opcionesSeleccionadasAsignadas = opcionesSeleccionadasAsignadas;
     }
     
     public String getOpcionSeleccionadaCodigo() {
