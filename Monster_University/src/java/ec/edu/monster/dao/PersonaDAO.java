@@ -7,6 +7,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.Document;
@@ -191,44 +192,49 @@ public class PersonaDAO {
     
     // Actualizar persona
     public boolean actualizarPersona(Persona persona) {
-        try {
-            Bson filtro = Filters.eq("_id", persona.getId());
-            
-            // Crear documento con los campos actualizados
-            Document actualizaciones = new Document();
-            actualizaciones.append("codigo", persona.getCodigo());
-            actualizaciones.append("peperTipo", persona.getPeperTipo()); // Cambiado aquí
-            actualizaciones.append("documento", persona.getDocumento());
-            actualizaciones.append("nombres", persona.getNombres());
-            actualizaciones.append("apellidos", persona.getApellidos());
-            actualizaciones.append("email", persona.getEmail());
-            actualizaciones.append("celular", persona.getCelular());
-            actualizaciones.append("fecha_nacimiento", persona.getFecha_nacimiento());
-            actualizaciones.append("sexo", persona.getSexo());
-            actualizaciones.append("estado_civil", persona.getEstado_civil());
-            actualizaciones.append("username", persona.getUsername());
-            actualizaciones.append("password_hash", persona.getPassword_hash());
-            actualizaciones.append("estado", persona.getEstado());
-            
-            // Actualizar rol si existe
-            if (persona.getRol() != null) {
-                Rol rol = persona.getRol();
-                Document docRol = new Document()
-                    .append("codigo", rol.getCodigo())
-                    .append("nombre", rol.getNombre())
-                    .append("descripcion", rol.getDescripcion())
-                    .append("estado", rol.getEstado());
-                actualizaciones.append("rol", docRol);
-            }
-            
-            collection.updateOne(filtro, new Document("$set", actualizaciones));
-            System.out.println("Persona actualizada: " + persona.getCodigo());
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error al actualizar persona: " + e.getMessage());
-            return false;
+    try {
+        Bson filtro = Filters.eq("_id", persona.getId());
+        
+        // Crear documento con los campos actualizados
+        Document actualizaciones = new Document();
+        actualizaciones.append("codigo", persona.getCodigo());
+        actualizaciones.append("peperTipo", persona.getPeperTipo());
+        actualizaciones.append("documento", persona.getDocumento());
+        actualizaciones.append("nombres", persona.getNombres());
+        actualizaciones.append("apellidos", persona.getApellidos());
+        actualizaciones.append("email", persona.getEmail());
+        actualizaciones.append("celular", persona.getCelular());
+        actualizaciones.append("fecha_nacimiento", persona.getFecha_nacimiento());
+        actualizaciones.append("sexo", persona.getSexo());
+        actualizaciones.append("estado_civil", persona.getEstado_civil());
+        actualizaciones.append("username", persona.getUsername());
+        actualizaciones.append("password_hash", persona.getPassword_hash());
+        actualizaciones.append("estado", persona.getEstado());
+        
+        // **CORRECCIÓN CRÍTICA**: Manejar tanto rol != null como rol == null
+        if (persona.getRol() != null) {
+            Rol rol = persona.getRol();
+            Document docRol = new Document()
+                .append("codigo", rol.getCodigo())
+                .append("nombre", rol.getNombre())
+                .append("descripcion", rol.getDescripcion())
+                .append("estado", rol.getEstado());
+            actualizaciones.append("rol", docRol);
+        } else {
+            // **ESTO ES LO QUE FALTA**: Establecer explícitamente rol como null
+            actualizaciones.append("rol", null);
         }
+        
+        UpdateResult result = collection.updateOne(filtro, new Document("$set", actualizaciones));
+        System.out.println("Persona actualizada: " + persona.getCodigo() + 
+                         ", modificados: " + result.getModifiedCount());
+        
+        return result.getModifiedCount() > 0;
+    } catch (Exception e) {
+        System.err.println("Error al actualizar persona: " + e.getMessage());
+        return false;
     }
+}
     
     // Asignar rol a persona
     public boolean asignarRol(String personaId, Rol rol) {

@@ -382,6 +382,9 @@ public void asignarUsuariosSeleccionados() {
 public void quitarUsuariosSeleccionados() {
     if (selected != null && !personasSeleccionadasConRol.isEmpty()) {
         try {
+            // Guardar el tamaño ANTES de limpiar la lista
+            int usuariosQuitados = personasSeleccionadasConRol.size();
+            
             for (Persona persona : personasSeleccionadasConRol) {
                 // Quitar el rol (establecer null)
                 persona.setRol(null);
@@ -395,18 +398,20 @@ public void quitarUsuariosSeleccionados() {
             // Recargar las listas
             cargarPersonasPorRol(selected.getCodigo());
             
-            // Limpiar selección
-            personasSeleccionadasConRol.clear();
+            // Mostrar mensaje con el número correcto de usuarios
+            addSuccessMessage("Roles quitados correctamente de " + usuariosQuitados + " usuario(s)");
             
-            addSuccessMessage("Roles quitados correctamente de " + personasSeleccionadasConRol.size() + " usuario(s)");
+            // Limpiar selección DESPUÉS de mostrar el mensaje
+            personasSeleccionadasConRol.clear();
             
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error al quitar roles", e);
             addErrorMessage("Error al quitar roles: " + e.getMessage());
         }
+    } else {
+        addErrorMessage("Seleccione usuarios primero");
     }
 }
-
 public void guardarCambios() {
     if (selected != null) {
         addSuccessMessage("Cambios guardados exitosamente para el rol: " + selected.getNombre());
